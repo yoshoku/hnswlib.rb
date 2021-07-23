@@ -24,4 +24,5 @@ extern "C"
 void Init_hnswlibext(void) {
   rb_mHnswlib = rb_define_module("Hnswlib");
   RbHnswlibL2Space::define_class(rb_mHnswlib);
+  RbHnswlibInnerProductSpace::define_class(rb_mHnswlib);
 }
