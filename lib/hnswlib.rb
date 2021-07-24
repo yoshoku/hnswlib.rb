@@ -63,7 +63,6 @@ module Hnswlib
     # Remove the item vector.
     #
     # @param i [Integer] The ID of item.
-    # @return [Array]
     def remove_item(i)
       @index.mark_deleted(i)
     end
