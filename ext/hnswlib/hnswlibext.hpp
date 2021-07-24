@@ -362,7 +362,7 @@ class RbHnswlibHierarchicalNSW {
         for (size_t i = 0; i < vec.size(); i++) {
           rb_ary_store(ret, i, DBL2NUM((double)vec[i]));
         }
-      } catch(std::runtime_error e) {
+      } catch(std::runtime_error const& e) {
         rb_raise(rb_eRuntimeError, "%s", e.what());
       }
       return ret;
