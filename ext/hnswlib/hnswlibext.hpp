@@ -169,6 +169,7 @@ class RbHnswlibHierarchicalNSW {
       rb_define_method(rb_cHnswlibHierarchicalNSW, "resize_index", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_resize_index), 1);
       rb_define_method(rb_cHnswlibHierarchicalNSW, "max_elements", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_max_elements), 0);
       rb_define_method(rb_cHnswlibHierarchicalNSW, "current_count", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_current_count), 0);
+      rb_define_attr(rb_cHnswlibHierarchicalNSW, "space", 1, 0);
       return rb_cHnswlibHierarchicalNSW;
     };
 
