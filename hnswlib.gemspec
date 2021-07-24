@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ['yoshoku']
   spec.email         = ['yoshoku@outlook.com']
 
-  spec.summary       = 'Ruby binding for the Hnswlib.'
-  spec.description   = 'hnswlib.rb is a Ruby binding for the Hnswlib.'
+  spec.summary       = 'Ruby bindings for the Hnswlib.'
+  spec.description   = 'Hnswlib.rb provides Ruby bindings for the Hnswlib.'
   spec.homepage      = 'https://github.com/yoshoku/hnswlib.rb'
   spec.license       = 'Apache-2.0'
 
