@@ -22,7 +22,23 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```
+require 'hnswlib'
+
+f = 40 # length of item vector that will be indexed.
+t = Hnswlib::Index.new(n_features: f, max_item: 1000)
+
+1000.times do |i|
+  v = Array.new(f) { rand }
+  t.add_item(i, v)
+end
+
+t.save('test.ann')
+
+u = Hnswlib::Index.new(n_features: f, max_item: 1000)
+u.load('test.ann')
+p u.get_nns_by_item(0, 100) # will find the 100 nearest neighbors.
+```
 
 ## Contributing
 
