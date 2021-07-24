@@ -53,6 +53,7 @@ class RbHnswlibL2Space {
       rb_cHnswlibL2Space = rb_define_class_under(rb_mHnswlib, "L2Space", rb_cObject);
       rb_define_alloc_func(rb_cHnswlibL2Space, hnsw_l2space_alloc);
       rb_define_method(rb_cHnswlibL2Space, "initialize", RUBY_METHOD_FUNC(_hnsw_l2space_init), 1);
+      rb_define_method(rb_cHnswlibL2Space, "distance", RUBY_METHOD_FUNC(_hnsw_l2space_distance), 2);
       rb_define_attr(rb_cHnswlibL2Space, "dim", 1, 0);
       return rb_cHnswlibL2Space;
     };
@@ -65,6 +66,27 @@ class RbHnswlibL2Space {
       hnswlib::L2Space* ptr = get_hnsw_l2space(self);
       new (ptr) hnswlib::L2Space(NUM2INT(rb_iv_get(self, "@dim")));
       return Qnil;
+    };
+
+    static VALUE _hnsw_l2space_distance(VALUE self, VALUE arr_a, VALUE arr_b) {
+      const int dim = NUM2INT(rb_iv_get(self, "@dim"));
+      if (dim != RARRAY_LEN(arr_a) || dim != RARRAY_LEN(arr_b)) {
+        rb_raise(rb_eArgError, "Array size does not match to space dimensionality.");
+        return Qnil;
+      }
+      float* vec_a = (float*)ruby_xmalloc(dim * sizeof(float));
+      for (int i = 0; i < dim; i++) {
+        vec_a[i] = (float)NUM2DBL(rb_ary_entry(arr_a, i));
+      }
+      float* vec_b = (float*)ruby_xmalloc(dim * sizeof(float));
+      for (int i = 0; i < dim; i++) {
+        vec_b[i] = (float)NUM2DBL(rb_ary_entry(arr_b, i));
+      }
+      hnswlib::DISTFUNC<float> dist_func = get_hnsw_l2space(self)->get_dist_func();
+      const float dist = dist_func(vec_a, vec_b, get_hnsw_l2space(self)->get_dist_func_param());
+      ruby_xfree(vec_a);
+      ruby_xfree(vec_b);
+      return DBL2NUM((double)dist);
     };
 };
 
@@ -106,6 +128,7 @@ class RbHnswlibInnerProductSpace {
       rb_cHnswlibInnerProductSpace = rb_define_class_under(rb_mHnswlib, "InnerProductSpace", rb_cObject);
       rb_define_alloc_func(rb_cHnswlibInnerProductSpace, hnsw_ipspace_alloc);
       rb_define_method(rb_cHnswlibInnerProductSpace, "initialize", RUBY_METHOD_FUNC(_hnsw_ipspace_init), 1);
+      rb_define_method(rb_cHnswlibInnerProductSpace, "distance", RUBY_METHOD_FUNC(_hnsw_ipspace_distance), 2);
       rb_define_attr(rb_cHnswlibInnerProductSpace, "dim", 1, 0);
       return rb_cHnswlibInnerProductSpace;
     };
@@ -118,6 +141,27 @@ class RbHnswlibInnerProductSpace {
       hnswlib::InnerProductSpace* ptr = get_hnsw_ipspace(self);
       new (ptr) hnswlib::InnerProductSpace(NUM2INT(rb_iv_get(self, "@dim")));
       return Qnil;
+    };
+
+    static VALUE _hnsw_ipspace_distance(VALUE self, VALUE arr_a, VALUE arr_b) {
+      const int dim = NUM2INT(rb_iv_get(self, "@dim"));
+      if (dim != RARRAY_LEN(arr_a) || dim != RARRAY_LEN(arr_b)) {
+        rb_raise(rb_eArgError, "Array size does not match to space dimensionality.");
+        return Qnil;
+      }
+      float* vec_a = (float*)ruby_xmalloc(dim * sizeof(float));
+      for (int i = 0; i < dim; i++) {
+        vec_a[i] = (float)NUM2DBL(rb_ary_entry(arr_a, i));
+      }
+      float* vec_b = (float*)ruby_xmalloc(dim * sizeof(float));
+      for (int i = 0; i < dim; i++) {
+        vec_b[i] = (float)NUM2DBL(rb_ary_entry(arr_b, i));
+      }
+      hnswlib::DISTFUNC<float> dist_func = get_hnsw_ipspace(self)->get_dist_func();
+      const float dist = dist_func(vec_a, vec_b, get_hnsw_ipspace(self)->get_dist_func_param());
+      ruby_xfree(vec_a);
+      ruby_xfree(vec_b);
+      return DBL2NUM((double)dist);
     };
 };
 
