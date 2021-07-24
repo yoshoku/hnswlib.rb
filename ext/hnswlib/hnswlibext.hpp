@@ -313,7 +313,7 @@ class RbHnswlibHierarchicalNSW {
 
       ruby_xfree(vec);
 
-      if (result.size() != NUM2INT(k)) {
+      if (result.size() != (size_t)NUM2INT(k)) {
         rb_raise(rb_eRuntimeError, "Cannot return the results in a contigious 2D array. Probably ef or M is too small.");
         return Qnil;
       }
@@ -359,7 +359,7 @@ class RbHnswlibHierarchicalNSW {
       try {
         std::vector<float> vec = get_hnsw_hierarchicalnsw(self)->template getDataByLabel<float>((size_t)NUM2INT(idx));
         ret = rb_ary_new2(vec.size());
-        for (int i = 0; i < vec.size(); i++) {
+        for (size_t i = 0; i < vec.size(); i++) {
           rb_ary_store(ret, i, DBL2NUM((double)vec[i]));
         }
       } catch(std::runtime_error e) {
