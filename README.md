@@ -1,5 +1,9 @@
 # Hnswlib.rb
 
+[![Build Status](https://github.com/yoshoku/hnswlib.rb/actions/workflows/build.yml/badge.svg)](https://github.com/yoshoku/hnswlib.rb/actions/workflows/build.yml)
+[![Gem Version](https://badge.fury.io/rb/hnswlib.svg)](https://badge.fury.io/rb/hnswlib)
+[![License](https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg)](https://github.com/yoshoku/hnswlib.rb/blob/main/LICENSE.txt)
+
 Hnswlib.rb provides Ruby bindings for the [Hnswlib](https://github.com/nmslib/hnswlib)
 that implements approximate nearest-neghbor search based on
 hierarchical navigable small world graphs.
@@ -22,7 +26,7 @@ Or install it yourself as:
 
 ## Usage
 
-```
+```ruby
 require 'hnswlib'
 
 f = 40 # length of item vector that will be indexed.
