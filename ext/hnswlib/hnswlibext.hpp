@@ -241,7 +241,7 @@ class RbHnswlibHierarchicalNSW {
 
       rb_iv_set(self, "@space", kw_values[0]);
       hnswlib::SpaceInterface<float>* space;
-      if (CLASS_OF(kw_values[0]) == rb_cHnswlibL2Space) {
+      if (rb_obj_is_instance_of(kw_values[0], rb_cHnswlibL2Space)) {
         space = RbHnswlibL2Space::get_hnsw_l2space(kw_values[0]);
       } else {
         space = RbHnswlibInnerProductSpace::get_hnsw_ipspace(kw_values[0]);
@@ -344,11 +344,12 @@ class RbHnswlibHierarchicalNSW {
 
     static VALUE _hnsw_hierarchicalnsw_load_index(VALUE self, VALUE _filename) {
       std::string filename(StringValuePtr(_filename));
+      VALUE ivspace = rb_iv_get(self, "@space");
       hnswlib::SpaceInterface<float>* space;
-      if (CLASS_OF(rb_iv_get(self, "@space")) == rb_cHnswlibL2Space) {
-        space = RbHnswlibL2Space::get_hnsw_l2space(rb_iv_get(self, "@space"));
+      if (rb_obj_is_instance_of(ivspace, rb_cHnswlibL2Space)) {
+        space = RbHnswlibL2Space::get_hnsw_l2space(ivspace);
       } else {
-        space = RbHnswlibInnerProductSpace::get_hnsw_ipspace(rb_iv_get(self, "@space"));
+        space = RbHnswlibInnerProductSpace::get_hnsw_ipspace(ivspace);
       }
       get_hnsw_hierarchicalnsw(self)->loadIndex(filename, space);
       RB_GC_GUARD(_filename);
