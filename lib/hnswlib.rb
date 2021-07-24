@@ -98,6 +98,13 @@ module Hnswlib
       @index.reisze_index(new_max_item)
     end
 
+    # Set the size of the dynamic list for the nearest neighbors.
+    #
+    # @param ef [Integer] The size of the dynamic list.
+    def set_ef(ef)
+      @index.set_ef(ef)
+    end
+
     # Save the search index to disk.
     #
     # @param filename [String] The filename of search index.

@@ -211,6 +211,7 @@ class RbHnswlibHierarchicalNSW {
       rb_define_method(rb_cHnswlibHierarchicalNSW, "get_ids", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_get_ids), 0);
       rb_define_method(rb_cHnswlibHierarchicalNSW, "mark_deleted", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_mark_deleted), 1);
       rb_define_method(rb_cHnswlibHierarchicalNSW, "resize_index", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_resize_index), 1);
+      rb_define_method(rb_cHnswlibHierarchicalNSW, "set_ef", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_set_ef), 1);
       rb_define_method(rb_cHnswlibHierarchicalNSW, "max_elements", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_max_elements), 0);
       rb_define_method(rb_cHnswlibHierarchicalNSW, "current_count", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_current_count), 0);
       rb_define_attr(rb_cHnswlibHierarchicalNSW, "space", 1, 0);
@@ -387,6 +388,11 @@ class RbHnswlibHierarchicalNSW {
         return Qnil;
       }
       get_hnsw_hierarchicalnsw(self)->resizeIndex((size_t)NUM2INT(new_max_elements));
+      return Qnil;
+    };
+
+    static VALUE _hnsw_hierarchicalnsw_set_ef(VALUE self, VALUE ef) {
+      get_hnsw_hierarchicalnsw(self)->ef_ = (size_t)NUM2INT(ef);
       return Qnil;
     };
 
