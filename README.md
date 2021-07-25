@@ -49,6 +49,10 @@ u.load('test.ann')
 p u.get_nns_by_item(0, 100) # will find the 100 nearest neighbors.
 ```
 
+## License
+
+The gem is available as open source under the terms of the [Apache-2.0 License](https://www.apache.org/licenses/LICENSE-2.0).
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/yoshoku/hnswlib.rb.
