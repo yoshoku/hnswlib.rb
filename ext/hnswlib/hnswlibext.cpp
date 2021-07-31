@@ -26,4 +26,5 @@ void Init_hnswlibext(void) {
   RbHnswlibL2Space::define_class(rb_mHnswlib);
   RbHnswlibInnerProductSpace::define_class(rb_mHnswlib);
   RbHnswlibHierarchicalNSW::define_class(rb_mHnswlib);
+  RbHnswlibBruteforceSearch::define_class(rb_mHnswlib);
 }

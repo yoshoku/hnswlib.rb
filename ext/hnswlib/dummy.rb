@@ -123,4 +123,59 @@ module Hnswlib
     # @return [Integer]
     def current_count; end
   end
+
+  # BruteforceSearch is a class that provides functions for exct k-NN search.
+  # This class is useful for evaluating the search accuracy and investigating the optimal hyperparameters of HierarchicalNSW.
+  class BruteforceSearch
+    # Returns the metric space of search index.
+    # @return [L2Space | InnerProductSpace]
+    attr_reader :space
+
+    # Create a new BruteforceSearch
+    #
+    # @param space [L2Space | InnerProductSpace] The metric space of search index.
+    # @param max_elements [Integer] The maximum number of items.
+    def initialize(space:, max_elements:)
+      @space = space
+    end
+
+    # Add item to be indexed.
+    #
+    # @param arr [Array] The vector of item.
+    # @param idx [Integer] The ID of item.
+    # @return [Boolean]
+    def add_point(arr, idx); end
+
+    # Search the k closest items.
+    #
+    # @param arr [Array] The vector of query item.
+    # @param k [Integer] The number of nearest neighbors.
+    # @return [Array<Array<Integer>, Array<Float>>]
+    def search_knn(arr, k); end
+
+    # Save the search index to disk.
+    #
+    # @param filename [String] The filename of search index.
+    def save_index(filename); end
+
+    # Load a search index from disk.
+    #
+    # @param filename [String] The filename of search index.
+    def load_index(filename); end
+
+    # Remove the item from index.
+    #
+    # @param idx [Integer] The ID of item.
+    def remove_point(idx); end
+
+    # Return the maximum number of items.
+    #
+    # @return [Integer]
+    def max_elements; end
+
+    # Return the number of items in the search index.
+    #
+    # @return [Integer]
+    def current_count; end
+  end
 end
