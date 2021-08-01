@@ -247,6 +247,7 @@ namespace hnswlib {
         size_t data_size_;
         size_t dim_;
     public:
+        InnerProductSpace() : data_size_(0), dim_(0) { }
         InnerProductSpace(size_t dim) {
             fstdistfunc_ = InnerProduct;
     #if defined(USE_AVX) || defined(USE_SSE)

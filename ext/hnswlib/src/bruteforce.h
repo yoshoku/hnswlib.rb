@@ -8,6 +8,7 @@ namespace hnswlib {
     template<typename dist_t>
     class BruteforceSearch : public AlgorithmInterface<dist_t> {
     public:
+        BruteforceSearch() : data_(nullptr) { }
         BruteforceSearch(SpaceInterface <dist_t> *s) {
 
         }

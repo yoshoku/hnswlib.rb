@@ -172,6 +172,7 @@ namespace hnswlib {
         size_t data_size_;
         size_t dim_;
     public:
+        L2Space() : data_size_(0), dim_(0) { }
         L2Space(size_t dim) {
             fstdistfunc_ = L2Sqr;
         #if defined(USE_SSE) || defined(USE_AVX)
