@@ -240,6 +240,27 @@ class RbHnswlibHierarchicalNSW {
       if (kw_values[3] == Qundef) kw_values[3] = INT2NUM(200);
       if (kw_values[4] == Qundef) kw_values[4] = INT2NUM(100);
 
+      if (!(rb_obj_is_instance_of(kw_values[0], rb_cHnswlibL2Space) || rb_obj_is_instance_of(kw_values[0], rb_cHnswlibInnerProductSpace))) {
+        rb_raise(rb_eTypeError, "expected space, Hnswlib::L2Space or Hnswlib::InnerProductSpace");
+        return Qnil;
+      }
+      if (!RB_INTEGER_TYPE_P(kw_values[1])) {
+        rb_raise(rb_eTypeError, "expected max_elements, Integer");
+        return Qnil;
+      }
+      if (!RB_INTEGER_TYPE_P(kw_values[2])) {
+        rb_raise(rb_eTypeError, "expected m, Integer");
+        return Qnil;
+      }
+      if (!RB_INTEGER_TYPE_P(kw_values[3])) {
+        rb_raise(rb_eTypeError, "expected ef_construction, Integer");
+        return Qnil;
+      }
+      if (!RB_INTEGER_TYPE_P(kw_values[4])) {
+        rb_raise(rb_eTypeError, "expected random_seed, Integer");
+        return Qnil;
+      }
+
       rb_iv_set(self, "@space", kw_values[0]);
       hnswlib::SpaceInterface<float>* space;
       if (rb_obj_is_instance_of(kw_values[0], rb_cHnswlibL2Space)) {
@@ -465,6 +486,15 @@ class RbHnswlibBruteforceSearch {
       VALUE kw_values[2] = { Qundef, Qundef };
       rb_scan_args(argc, argv, ":", &kw_args);
       rb_get_kwargs(kw_args, kw_table, 2, 0, kw_values);
+
+      if (!(rb_obj_is_instance_of(kw_values[0], rb_cHnswlibL2Space) || rb_obj_is_instance_of(kw_values[0], rb_cHnswlibInnerProductSpace))) {
+        rb_raise(rb_eTypeError, "expected space, Hnswlib::L2Space or Hnswlib::InnerProductSpace");
+        return Qnil;
+      }
+      if (!RB_INTEGER_TYPE_P(kw_values[1])) {
+        rb_raise(rb_eTypeError, "expected max_elements, Integer");
+        return Qnil;
+      }
 
       rb_iv_set(self, "@space", kw_values[0]);
       hnswlib::SpaceInterface<float>* space;
