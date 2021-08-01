@@ -32,6 +32,7 @@ class RbHnswlibL2Space {
   public:
     static VALUE hnsw_l2space_alloc(VALUE self) {
       hnswlib::L2Space* ptr = (hnswlib::L2Space*)ruby_xmalloc(sizeof(hnswlib::L2Space));
+      new (ptr) hnswlib::L2Space(); // dummy call to constructor for GC.
       return TypedData_Wrap_Struct(self, &hnsw_l2space_type, ptr);
     };
 
@@ -107,6 +108,7 @@ class RbHnswlibInnerProductSpace {
   public:
     static VALUE hnsw_ipspace_alloc(VALUE self) {
       hnswlib::InnerProductSpace* ptr = (hnswlib::InnerProductSpace*)ruby_xmalloc(sizeof(hnswlib::InnerProductSpace));
+      new (ptr) hnswlib::InnerProductSpace(); // dummy call to constructor for GC.
       return TypedData_Wrap_Struct(self, &hnsw_ipspace_type, ptr);
     };
 
@@ -182,6 +184,7 @@ class RbHnswlibHierarchicalNSW {
   public:
     static VALUE hnsw_hierarchicalnsw_alloc(VALUE self) {
       hnswlib::HierarchicalNSW<float>* ptr = (hnswlib::HierarchicalNSW<float>*)ruby_xmalloc(sizeof(hnswlib::HierarchicalNSW<float>));
+      new (ptr) hnswlib::HierarchicalNSW<float>(); // dummy call to constructor for GC.
       return TypedData_Wrap_Struct(self, &hnsw_hierarchicalnsw_type, ptr);
     };
 
@@ -444,6 +447,7 @@ class RbHnswlibBruteforceSearch {
   public:
     static VALUE hnsw_bruteforcesearch_alloc(VALUE self) {
       hnswlib::BruteforceSearch<float>* ptr = (hnswlib::BruteforceSearch<float>*)ruby_xmalloc(sizeof(hnswlib::BruteforceSearch<float>));
+      new (ptr) hnswlib::BruteforceSearch<float>(); // dummy call to constructor for GC.
       return TypedData_Wrap_Struct(self, &hnsw_bruteforcesearch_type, ptr);
     };
 
