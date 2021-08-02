@@ -1,3 +1,9 @@
+## [0.2.0] - 2021-08-02
+
+- Add binding class for the BruteforceSearch.
+- Add type check for arguments of initialize methods of BruteforceSearch and HierarchicalNSW.
+- Add dummy constructor call at memory allocation for class to prevent occuring segment fault on GC when initialize method is failed.
+
 ## [0.1.1] - 2021-07-25
 
 - Fix to use `rb_obj_is_isntance_of` for klass comparison due to type error when loading search index on irb 1.3.x: [issue #1](https://github.com/yoshoku/hnswlib.rb/issues/1)
