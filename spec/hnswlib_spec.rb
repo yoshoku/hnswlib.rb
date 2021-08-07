@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Hnswlib do
-  describe Hnswlib::Index do
+  describe Hnswlib::HnswIndex do
     let(:n_features) { 4 }
     let(:metric) { 'l2' }
     let(:n_items) { 5 }

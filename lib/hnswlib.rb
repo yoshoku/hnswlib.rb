@@ -4,12 +4,12 @@ require_relative 'hnswlib/version'
 require_relative 'hnswlib/hnswlibext'
 
 module Hnswlib
-  # Index is a class that provides functions for k-nearest eighbors search.
+  # HnswIndex is a class that provides functions for k-nearest eighbors search.
   #
   # @example
   #   require 'hnswlib'
   #
-  #   index = Hnswlib::Index.new(n_features: 100, max_item: 10000)
+  #   index = Hnswlib::HnswIndex.new(n_features: 100, max_item: 10000)
   #
   #   5000.times do |item_id|
   #     item_vec = Array.new(100) { rand - 0.5 }
@@ -18,7 +18,7 @@ module Hnswlib
   #
   #   index.get_nns_by_item(0, 100)
   #
-  class Index
+  class HnswIndex
     # Returns the metric of index.
     # @return [String]
     attr_reader :metric
@@ -150,4 +150,7 @@ module Hnswlib
       @index.max_elements
     end
   end
+
+  # Index is alias of HnswIndex
+  Index = ::Hnswlib::HnswIndex
 end
