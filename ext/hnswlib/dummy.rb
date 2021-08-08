@@ -5,6 +5,17 @@
 module Hnswlib
   # L2Space is a class that calculates squared Euclidean distance for search index.
   # This class is used internally.
+  #
+  # @example
+  #   require 'hnswlib'
+  #
+  #   n_features = 3
+  #   space = Hnswlib::L2Space.new(n_features)
+  #
+  #   a = [1, 2, 3]
+  #   b = [4, 5, 6]
+  #   space.distance(a, b)
+  #   # => 27.0
   class L2Space
     # Create a new L2Space.
     #
@@ -26,6 +37,17 @@ module Hnswlib
 
   # InnerProductSpace is a class that calculates dot product for search index.
   # This class is used internally.
+  #
+  # @example
+  #   require 'hnswlib'
+  #
+  #   n_features = 3
+  #   space = Hnswlib::InnerProductSpace.new(n_features)
+  #
+  #   a = [1, 2, 3]
+  #   b = [4, 5, 6]
+  #   space.distance(a, b)
+  #   # => -31.0
   class InnerProductSpace
     # Create a new InnerProductSpace.
     #
@@ -47,6 +69,24 @@ module Hnswlib
 
   # HierarchicalNSW is a class that provides functions for approximate k-NN search.
   # This class is used internally.
+  #
+  # @example
+  #   require 'hnswlib'
+  #
+  #   n_features = 32
+  #   space = Hnswlib::L2Space.new(n_features)
+  #
+  #   max_elements = 100
+  #   index = HierarchicalNSW.new(space: space, max_elements: max_elements)
+  #
+  #   max_elements.times do |i|
+  #     vec = Array.new(n_features) { rand }
+  #     index.add_point(vec, i)
+  #   end
+  #
+  #   query = Array.new(n_features) { rand }
+  #   index.search_knn(query, 10)
+  #
   class HierarchicalNSW
     # Returns the metric space of search index.
     # @return [L2Space | InnerProductSpace]
@@ -126,6 +166,23 @@ module Hnswlib
 
   # BruteforceSearch is a class that provides functions for exct k-NN search.
   # This class is useful for evaluating the search accuracy and investigating the optimal hyperparameters of HierarchicalNSW.
+  #
+  # @example
+  #   require 'hnswlib'
+  #
+  #   n_features = 32
+  #   space = Hnswlib::L2Space.new(n_features)
+  #
+  #   max_elements = 100
+  #   index = BruteforceSearch.new(space: space, max_elements: max_elements)
+  #
+  #   max_elements.times do |i|
+  #     vec = Array.new(n_features) { rand }
+  #     index.add_point(vec, i)
+  #   end
+  #
+  #   query = Array.new(n_features) { rand }
+  #   index.search_knn(query, 10)
   class BruteforceSearch
     # Returns the metric space of search index.
     # @return [L2Space | InnerProductSpace]
