@@ -1,3 +1,8 @@
+## [0.3.0] - 2021-08-08
+
+- Rename `Hnswlib::Index` to `Hnswlib::HnswIndex` (for compatibility, `Hnswlib::Index` has been an alis for `Hnswlib::HnswIndex`).
+- Update API documentation.
+
 ## [0.2.0] - 2021-08-02
 
 - Add binding class for the BruteforceSearch.
