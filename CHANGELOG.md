@@ -1,3 +1,7 @@
+## [0.4.0] - 2021-09-12
+
+- Add type declaration file.
+
 ## [0.3.0] - 2021-08-08
 
 - Rename `Hnswlib::Index` to `Hnswlib::HnswIndex` (for compatibility, `Hnswlib::Index` has been an alis for `Hnswlib::HnswIndex`).
