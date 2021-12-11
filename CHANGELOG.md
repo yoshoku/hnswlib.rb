@@ -1,3 +1,7 @@
+## [0.5.0] - 2021-12-12
+
+- Update bundled hnswlib version to 0.6.0.
+
 ## [0.4.0] - 2021-09-12
 
 - Add type declaration file.
