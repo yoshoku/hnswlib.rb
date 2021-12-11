@@ -6,5 +6,5 @@ module Hnswlib
   VERSION = '0.4.0'
 
   # The version of Hnswlib included with gem.
-  HSWLIB_VERSION = '0.5.2'
+  HSWLIB_VERSION = '0.6.0'
 end
