@@ -17,5 +17,5 @@ mkmf.log
 # rspec failure tracking
 .rspec_status
 
-*.ann
+/spec/test.ann
 /bin/
