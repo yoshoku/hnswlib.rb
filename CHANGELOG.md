@@ -1,3 +1,9 @@
+## [0.5.1] - 2022-02-11
+
+- Update bundled hnswlib version to 0.6.1.
+- Update documentations.
+- Introduce conventional commits.
+
 ## [0.5.0] - 2021-12-12
 
 - Update bundled hnswlib version to 0.6.0.
