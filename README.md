@@ -25,6 +25,20 @@ Or install it yourself as:
 
     $ gem install hnswlib
 
+Note: hnswlib.rb gives no optimization options when building native extensions.
+If necessary, add the optimization options yourself during installation, as follows;
+
+```
+$ bundle config --local build.hnswlib "--with-cxxflags=-march=native"
+$ bundle install
+```
+
+Or:
+
+```
+$ gem install hnswlib -- --with-cxxflags=-march=native
+```
+
 ## Documentation
 
 * [Hnswlib.rb API Documentation](https://yoshoku.github.io/hnswlib.rb/doc/)
