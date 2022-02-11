@@ -17,7 +17,6 @@ namespace hnswlib {
     class HierarchicalNSW : public AlgorithmInterface<dist_t> {
     public:
         static const tableint max_update_element_locks = 65536;
-        HierarchicalNSW() : visited_list_pool_(nullptr), data_level0_memory_(nullptr), linkLists_(nullptr), cur_element_count(0) { }
         HierarchicalNSW(SpaceInterface<dist_t> *s) {
         }
 
@@ -1004,6 +1003,7 @@ namespace hnswlib {
                         unmarkDeletedInternal(existingInternalId);
                     }
                     updatePoint(data_point, existingInternalId, 1.0);
+                    
                     return existingInternalId;
                 }
 
