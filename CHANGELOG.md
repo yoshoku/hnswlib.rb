@@ -1,3 +1,7 @@
+## [0.5.2] - 2022-02-19
+
+- Update bundled hnswlib version to 0.6.2.
+
 ## [0.5.1] - 2022-02-11
 
 - Update bundled hnswlib version to 0.6.1.
