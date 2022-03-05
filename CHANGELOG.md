@@ -1,3 +1,8 @@
+## [0.5.3] - 2022-03-05
+
+- Add error handling for std::runtime_error throwed from hnswlib.
+- Add memory release for existing search index when loading index.
+
 ## [0.5.2] - 2022-02-19
 
 - Update bundled hnswlib version to 0.6.2.
