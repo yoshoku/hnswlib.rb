@@ -277,7 +277,12 @@ class RbHnswlibHierarchicalNSW {
       const size_t random_seed = (size_t)NUM2INT(kw_values[4]);
 
       hnswlib::HierarchicalNSW<float>* ptr = get_hnsw_hierarchicalnsw(self);
-      new (ptr) hnswlib::HierarchicalNSW<float>(space, max_elements, m, ef_construction, random_seed);
+      try {
+        new (ptr) hnswlib::HierarchicalNSW<float>(space, max_elements, m, ef_construction, random_seed);
+      } catch(const std::runtime_error& e) {
+        rb_raise(rb_eRuntimeError, "%s", e.what());
+        return Qnil;
+      }
 
       return Qnil;
     };
@@ -334,8 +339,14 @@ class RbHnswlibHierarchicalNSW {
         vec[i] = (float)NUM2DBL(rb_ary_entry(arr, i));
       }
 
-      std::priority_queue<std::pair<float, size_t>> result =
-        get_hnsw_hierarchicalnsw(self)->searchKnn((void *)vec, (size_t)NUM2INT(k));
+      std::priority_queue<std::pair<float, size_t>> result;
+      try {
+        result = get_hnsw_hierarchicalnsw(self)->searchKnn((void *)vec, (size_t)NUM2INT(k));
+      } catch(const std::runtime_error& e) {
+        ruby_xfree(vec);
+        rb_raise(rb_eRuntimeError, "%s", e.what());
+        return Qnil;
+      }
 
       ruby_xfree(vec);
 
@@ -385,7 +396,12 @@ class RbHnswlibHierarchicalNSW {
         free(index->linkLists_);
       }
       if (index->visited_list_pool_) delete index->visited_list_pool_;
-      index->loadIndex(filename, space);
+      try {
+        index->loadIndex(filename, space);
+      } catch(const std::runtime_error& e) {
+        rb_raise(rb_eRuntimeError, "%s", e.what());
+        return Qnil;
+      }
       RB_GC_GUARD(_filename);
       return Qnil;
     };
@@ -398,8 +414,9 @@ class RbHnswlibHierarchicalNSW {
         for (size_t i = 0; i < vec.size(); i++) {
           rb_ary_store(ret, i, DBL2NUM((double)vec[i]));
         }
-      } catch(std::runtime_error const& e) {
+      } catch(const std::runtime_error& e) {
         rb_raise(rb_eRuntimeError, "%s", e.what());
+        return Qnil;
       }
       return ret;
     };
@@ -413,7 +430,12 @@ class RbHnswlibHierarchicalNSW {
     };
 
     static VALUE _hnsw_hierarchicalnsw_mark_deleted(VALUE self, VALUE idx) {
-      get_hnsw_hierarchicalnsw(self)->markDelete((size_t)NUM2INT(idx));
+      try {
+        get_hnsw_hierarchicalnsw(self)->markDelete((size_t)NUM2INT(idx));
+      } catch(const std::runtime_error& e) {
+        rb_raise(rb_eRuntimeError, "%s", e.what());
+        return Qnil;
+      }
       return Qnil;
     };
 
@@ -422,7 +444,12 @@ class RbHnswlibHierarchicalNSW {
         rb_raise(rb_eArgError, "Cannot resize, max element is less than the current number of elements.");
         return Qnil;
       }
-      get_hnsw_hierarchicalnsw(self)->resizeIndex((size_t)NUM2INT(new_max_elements));
+      try {
+        get_hnsw_hierarchicalnsw(self)->resizeIndex((size_t)NUM2INT(new_max_elements));
+      } catch(const std::runtime_error& e) {
+        rb_raise(rb_eRuntimeError, "%s", e.what());
+        return Qnil;
+      }
       return Qnil;
     };
 
@@ -519,7 +546,12 @@ class RbHnswlibBruteforceSearch {
       const size_t max_elements = (size_t)NUM2INT(kw_values[1]);
 
       hnswlib::BruteforceSearch<float>* ptr = get_hnsw_bruteforcesearch(self);
-      new (ptr) hnswlib::BruteforceSearch<float>(space, max_elements);
+      try {
+        new (ptr) hnswlib::BruteforceSearch<float>(space, max_elements);
+      } catch(const std::runtime_error& e) {
+        rb_raise(rb_eRuntimeError, "%s", e.what());
+        return Qnil;
+      }
 
       return Qnil;
     };
@@ -547,7 +579,13 @@ class RbHnswlibBruteforceSearch {
         vec[i] = (float)NUM2DBL(rb_ary_entry(arr, i));
       }
 
-      get_hnsw_bruteforcesearch(self)->addPoint((void *)vec, (size_t)NUM2INT(idx));
+      try {
+        get_hnsw_bruteforcesearch(self)->addPoint((void *)vec, (size_t)NUM2INT(idx));
+      } catch(const std::runtime_error& e) {
+        ruby_xfree(vec);
+        rb_raise(rb_eRuntimeError, "%s", e.what());
+        return Qfalse;
+      }
 
       ruby_xfree(vec);
       return Qtrue;
@@ -620,7 +658,12 @@ class RbHnswlibBruteforceSearch {
       }
       hnswlib::BruteforceSearch<float>* index = get_hnsw_bruteforcesearch(self);
       if (index->data_) free(index->data_);
-      index->loadIndex(filename, space);
+      try {
+        index->loadIndex(filename, space);
+      } catch(const std::runtime_error& e) {
+        rb_raise(rb_eRuntimeError, "%s", e.what());
+        return Qnil;
+      }
       RB_GC_GUARD(_filename);
       return Qnil;
     };
