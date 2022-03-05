@@ -351,17 +351,16 @@ class RbHnswlibHierarchicalNSW {
       ruby_xfree(vec);
 
       if (result.size() != (size_t)NUM2INT(k)) {
-        rb_raise(rb_eRuntimeError, "Cannot return the results in a contigious 2D array. Probably ef or M is too small.");
-        return Qnil;
+        rb_warning("Cannot return as many search results as the requested number of neighbors. Probably ef or M is too small.");
       }
 
-      VALUE distances_arr = rb_ary_new2(result.size());
-      VALUE neighbors_arr = rb_ary_new2(result.size());
+      VALUE distances_arr = rb_ary_new();
+      VALUE neighbors_arr = rb_ary_new();
 
-      for (int i = NUM2INT(k) - 1; i >= 0; i--) {
+      while (!result.empty()) {
         const std::pair<float, size_t>& result_tuple = result.top();
-        rb_ary_store(distances_arr, i, DBL2NUM((double)result_tuple.first));
-        rb_ary_store(neighbors_arr, i, INT2NUM((int)result_tuple.second));
+        rb_ary_unshift(distances_arr, DBL2NUM((double)result_tuple.first));
+        rb_ary_unshift(neighbors_arr, INT2NUM((int)result_tuple.second));
         result.pop();
       }
 
