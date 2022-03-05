@@ -376,7 +376,16 @@ class RbHnswlibHierarchicalNSW {
       } else {
         space = RbHnswlibInnerProductSpace::get_hnsw_ipspace(ivspace);
       }
-      get_hnsw_hierarchicalnsw(self)->loadIndex(filename, space);
+      hnswlib::HierarchicalNSW<float>* index = get_hnsw_hierarchicalnsw(self);
+      if (index->data_level0_memory_) free(index->data_level0_memory_);
+      if (index->linkLists_) {
+        for (hnswlib::tableint i = 0; i < index->cur_element_count; i++) {
+          if (index->element_levels_[i] > 0 && index->linkLists_[i]) free(index->linkLists_[i]);
+        }
+        free(index->linkLists_);
+      }
+      if (index->visited_list_pool_) delete index->visited_list_pool_;
+      index->loadIndex(filename, space);
       RB_GC_GUARD(_filename);
       return Qnil;
     };
@@ -609,7 +618,9 @@ class RbHnswlibBruteforceSearch {
       } else {
         space = RbHnswlibInnerProductSpace::get_hnsw_ipspace(ivspace);
       }
-      get_hnsw_bruteforcesearch(self)->loadIndex(filename, space);
+      hnswlib::BruteforceSearch<float>* index = get_hnsw_bruteforcesearch(self);
+      if (index->data_) free(index->data_);
+      index->loadIndex(filename, space);
       RB_GC_GUARD(_filename);
       return Qnil;
     };
