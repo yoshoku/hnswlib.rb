@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/yoshoku/hnswlib.rb/actions/workflows/build.yml/badge.svg)](https://github.com/yoshoku/hnswlib.rb/actions/workflows/build.yml)
 [![Gem Version](https://badge.fury.io/rb/hnswlib.svg)](https://badge.fury.io/rb/hnswlib)
 [![License](https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg)](https://github.com/yoshoku/hnswlib.rb/blob/main/LICENSE.txt)
-[![Documentation](http://img.shields.io/badge/api-reference-blue.svg)](https://yoshoku.github.io/hnswlib.rb/doc/)
+[![Documentation](https://img.shields.io/badge/api-reference-blue.svg)](https://yoshoku.github.io/hnswlib.rb/doc/)
 
 Hnswlib.rb provides Ruby bindings for the [Hnswlib](https://github.com/nmslib/hnswlib)
 that implements approximate nearest-neghbor search based on
@@ -71,4 +71,4 @@ The gem is available as open source under the terms of the [Apache-2.0 License](
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/yoshoku/hnswlib.rb.
 This project is intended to be a safe, welcoming space for collaboration,
-and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+and contributors are expected to adhere to the [Contributor Covenant](https://contributor-covenant.org) code of conduct.
