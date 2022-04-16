@@ -1,3 +1,10 @@
+## [0.6.0] - 2022-04-16
+
+**Breaking change:**
+
+- Change the `search_knn` method of `HierarchicalNSW` to output warning message instead of rasing RuntimeError
+when the number of search results is less than the requested number of neighbors.
+
 ## [0.5.3] - 2022-03-05
 
 - Add error handling for std::runtime_error throwed from hnswlib.
