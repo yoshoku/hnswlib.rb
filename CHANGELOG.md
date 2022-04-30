@@ -1,3 +1,10 @@
+## [0.6.1] - 2022-04-30
+
+- Change the `search_knn` method of `BruteforceSearch` to output warning message instead of rasing RuntimeError
+when the number of search results is less than the requested number of neighbors.
+- Fix to raise RuntimeError when failing to open file on the `load_index` method of `BruteforceSearch`.
+- Add guard to not free unallocated memory space.
+
 ## [0.6.0] - 2022-04-16
 
 **Breaking change:**
