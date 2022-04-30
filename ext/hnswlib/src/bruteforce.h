@@ -129,6 +129,10 @@ namespace hnswlib {
 
 
             std::ifstream input(location, std::ios::binary);
+
+            if (!input.is_open())
+                throw std::runtime_error("Cannot open file");
+
             std::streampos position;
 
             readBinaryPOD(input, maxelements_);
