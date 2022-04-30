@@ -76,14 +76,15 @@ namespace hnswlib {
         };
 
         ~HierarchicalNSW() {
-
-            free(data_level0_memory_);
-            for (tableint i = 0; i < cur_element_count; i++) {
-                if (element_levels_[i] > 0)
-                    free(linkLists_[i]);
+            if (data_level0_memory_) free(data_level0_memory_);
+            if (linkLists_) {
+                for (tableint i = 0; i < cur_element_count; i++) {
+                    if (element_levels_[i] > 0)
+                        if (linkLists_[i]) free(linkLists_[i]);
+                }
+                free(linkLists_);
             }
-            free(linkLists_);
-            delete visited_list_pool_;
+            if (visited_list_pool_) delete visited_list_pool_;
         }
 
         size_t max_elements_;

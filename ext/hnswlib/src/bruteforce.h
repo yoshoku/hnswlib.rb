@@ -29,7 +29,7 @@ namespace hnswlib {
         }
 
         ~BruteforceSearch() {
-            free(data_);
+            if (data_) free(data_);
         }
 
         char *data_;

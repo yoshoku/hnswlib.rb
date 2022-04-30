@@ -366,14 +366,24 @@ private:
       space = RbHnswlibInnerProductSpace::get_hnsw_ipspace(ivspace);
     }
     hnswlib::HierarchicalNSW<float>* index = get_hnsw_hierarchicalnsw(self);
-    if (index->data_level0_memory_) free(index->data_level0_memory_);
+    if (index->data_level0_memory_) {
+      free(index->data_level0_memory_);
+      index->data_level0_memory_ = nullptr;
+    }
     if (index->linkLists_) {
       for (hnswlib::tableint i = 0; i < index->cur_element_count; i++) {
-        if (index->element_levels_[i] > 0 && index->linkLists_[i]) free(index->linkLists_[i]);
+        if (index->element_levels_[i] > 0 && index->linkLists_[i]) {
+          free(index->linkLists_[i]);
+          index->linkLists_[i] = nullptr;
+        }
       }
       free(index->linkLists_);
+      index->linkLists_ = nullptr;
     }
-    if (index->visited_list_pool_) delete index->visited_list_pool_;
+    if (index->visited_list_pool_) {
+      delete index->visited_list_pool_;
+      index->visited_list_pool_ = nullptr;
+    }
     try {
       index->loadIndex(filename, space);
     } catch (const std::runtime_error& e) {
@@ -627,7 +637,10 @@ private:
       space = RbHnswlibInnerProductSpace::get_hnsw_ipspace(ivspace);
     }
     hnswlib::BruteforceSearch<float>* index = get_hnsw_bruteforcesearch(self);
-    if (index->data_) free(index->data_);
+    if (index->data_) {
+      free(index->data_);
+      index->data_ = nullptr;
+    }
     try {
       index->loadIndex(filename, space);
     } catch (const std::runtime_error& e) {
