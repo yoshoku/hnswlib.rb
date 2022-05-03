@@ -70,6 +70,10 @@ private:
 
   static VALUE _hnsw_l2space_distance(VALUE self, VALUE arr_a, VALUE arr_b) {
     const int dim = NUM2INT(rb_iv_get(self, "@dim"));
+    if (!RB_TYPE_P(arr_a, T_ARRAY) || !RB_TYPE_P(arr_b, T_ARRAY)) {
+      rb_raise(rb_eArgError, "Expect input vector to be Ruby Array.");
+      return Qnil;
+    }
     if (dim != RARRAY_LEN(arr_a) || dim != RARRAY_LEN(arr_b)) {
       rb_raise(rb_eArgError, "Array size does not match to space dimensionality.");
       return Qnil;
@@ -142,6 +146,10 @@ private:
 
   static VALUE _hnsw_ipspace_distance(VALUE self, VALUE arr_a, VALUE arr_b) {
     const int dim = NUM2INT(rb_iv_get(self, "@dim"));
+    if (!RB_TYPE_P(arr_a, T_ARRAY) || !RB_TYPE_P(arr_b, T_ARRAY)) {
+      rb_raise(rb_eArgError, "Expect input vector to be Ruby Array.");
+      return Qnil;
+    }
     if (dim != RARRAY_LEN(arr_a) || dim != RARRAY_LEN(arr_b)) {
       rb_raise(rb_eArgError, "Array size does not match to space dimensionality.");
       return Qnil;
