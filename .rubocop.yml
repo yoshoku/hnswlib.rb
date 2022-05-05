@@ -10,9 +10,11 @@ AllCops:
     - 'ext/**/*'
     - 'tmp/**/*'
     - 'vendor/**/*'
-    - 'hnswlib.gemspec'
     - 'Gemfile'
     - 'Steepfile'
+
+Gemspec/RequiredRubyVersion:
+  Enabled: false
 
 Layout/LineLength:
   AllowedPatterns: ['(\A|\s)#']
