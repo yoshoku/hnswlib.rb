@@ -13,6 +13,11 @@ require 'rake/extensiontask'
 
 task build: :compile # rubocop:disable Rake/Desc
 
+desc 'Run clang-format'
+task :'clang-format' do
+  sh 'clang-format -style=file -Werror --dry-run ext/hnswlib/hnswlibext.*'
+end
+
 Rake::ExtensionTask.new('hnswlibext') do |ext|
   ext.ext_dir = 'ext/hnswlib'
   ext.lib_dir = 'lib/hnswlib'
