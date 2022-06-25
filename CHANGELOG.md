@@ -1,3 +1,8 @@
+## [0.6.2] - 2022-06-25
+
+- Refactor codes and configs with RuboCop and clang-format.
+- Change to raise ArgumentError when non-array object is given to distance method.
+
 ## [0.6.1] - 2022-04-30
 
 - Change the `search_knn` method of `BruteforceSearch` to output warning message instead of rasing RuntimeError
