@@ -320,6 +320,8 @@ class InnerProductSpace : public SpaceInterface<float> {
     size_t dim_;
 
  public:
+    InnerProductSpace() : data_size_(0), dim_(0) { }
+
     InnerProductSpace(size_t dim) {
         fstdistfunc_ = InnerProductDistance;
 #if defined(USE_AVX) || defined(USE_SSE) || defined(USE_AVX512)
