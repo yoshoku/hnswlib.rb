@@ -7,7 +7,13 @@ RSpec.describe Hnswlib do
     let(:n_items) { 5 }
     let(:max_item) { n_items * 2 }
     let(:n_neighbors) { 3 }
-    let(:index) { described_class.new(n_features: n_features, max_item: max_item, metric: metric, random_seed: 84) }
+    let(:allow_replace_removed) { false }
+    let(:index) do
+      described_class.new(
+        n_features: n_features, max_item: max_item, metric: metric, allow_replace_removed: allow_replace_removed,
+        random_seed: 84
+      )
+    end
 
     before do
       index.add_item(0, [0, 1, 2, 3])
@@ -180,6 +186,21 @@ RSpec.describe Hnswlib do
           # (1 - 3)**2 + (0 - 1)**2 + (1 - 1)**2 + (2 - 2)**2
           expect(subject).to be_within(1e-8).of(5)
         end
+      end
+    end
+
+    context 'when allow_replace_removed is true' do
+      subject(:replaced_item) { index.get_item(0) }
+
+      let(:allow_replace_removed) { true }
+
+      before do
+        index.remove_item(0)
+        index.add_item(0, [3, 2, 1, 0], replace_removed: true)
+      end
+
+      it 'replaces removed item vector with new item vector' do
+        expect(index.get_item(0)).to match([3, 2, 1, 0])
       end
     end
   end

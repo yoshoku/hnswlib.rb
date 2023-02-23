@@ -5,8 +5,8 @@ module Hnswlib
   class HnswIndex
     attr_reader metric: String
 
-    def initialize: (n_features: Integer n_features, max_item: Integer max_item, ?metric: ::String metric, ?m: ::Integer m, ?ef_construction: ::Integer ef_construction, ?random_seed: ::Integer random_seed) -> void
-    def add_item: (Integer i, Array[Float] v) -> bool
+    def initialize: (n_features: Integer n_features, max_item: Integer max_item, ?metric: ::String metric, ?m: ::Integer m, ?ef_construction: ::Integer ef_construction, ?random_seed: ::Integer random_seed, ?allow_replace_removed: (true | false) allow_replace_removed) -> void
+    def add_item: (Integer i, Array[Float] v, ?replace_removed: (true | false) replace_removed) -> bool
     def get_item: (Integer i) -> Array[Float]
     def remove_item: (Integer i) -> void
     def get_nns_by_item: (Integer i, Integer n, ?include_distances: (true | false) include_distances) -> ([Array[Integer], Array[Float]] | Array[Integer])
@@ -14,7 +14,7 @@ module Hnswlib
     def resize_index: (Integer new_max_item) -> void
     def set_ef: (Integer ef) -> void
     def save: (String filename) -> void
-    def load: (String filename) -> void
+    def load: (String filename, ?allow_replace_removed: (true | false) allow_replace_removed) -> void
     def get_distance: (Integer i, Integer j) -> Float
     def n_items: () -> Integer
     def n_features: () -> Integer
@@ -53,12 +53,12 @@ module Hnswlib
   class HierarchicalNSW
     attr_accessor space: (::Hnswlib::L2Space | ::Hnswlib::InnerProductSpace)
 
-    def initialize: (space: (::Hnswlib::L2Space | ::Hnswlib::InnerProductSpace) space, max_elements: Integer max_elements, ?m: Integer m, ?ef_construction: Integer ef_construction, ?random_seed: Integer random_seed) -> void
-    def add_point: (Array[Float] arr, Integer idx) -> bool
+    def initialize: (space: (::Hnswlib::L2Space | ::Hnswlib::InnerProductSpace) space, max_elements: Integer max_elements, ?m: Integer m, ?ef_construction: Integer ef_construction, ?random_seed: Integer random_seed, ?allow_replace_deleted: (true | false) allow_replace_deleted) -> void
+    def add_point: (Array[Float] arr, Integer idx, ?replace_deleted: (true | false) replace_deleted) -> bool
     def current_count: () -> Integer
     def get_ids: () -> Array[Integer]
     def get_point: (Integer idx) -> Array[Float]
-    def load_index: (String filename) -> void
+    def load_index: (String filename, ?allow_replace_deleted: (true | false) allow_replace_deleted) -> void
     def mark_deleted: (Integer idx) -> void
     def max_elements: () -> Integer
     def resize_index: (Integer new_max_elements) -> void

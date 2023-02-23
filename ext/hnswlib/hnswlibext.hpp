@@ -206,10 +206,10 @@ public:
     rb_cHnswlibHierarchicalNSW = rb_define_class_under(rb_mHnswlib, "HierarchicalNSW", rb_cObject);
     rb_define_alloc_func(rb_cHnswlibHierarchicalNSW, hnsw_hierarchicalnsw_alloc);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "initialize", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_init), -1);
-    rb_define_method(rb_cHnswlibHierarchicalNSW, "add_point", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_add_point), 2);
+    rb_define_method(rb_cHnswlibHierarchicalNSW, "add_point", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_add_point), -1);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "search_knn", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_search_knn), 2);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "save_index", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_save_index), 1);
-    rb_define_method(rb_cHnswlibHierarchicalNSW, "load_index", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_load_index), 1);
+    rb_define_method(rb_cHnswlibHierarchicalNSW, "load_index", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_load_index), -1);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "get_point", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_get_point), 1);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "get_ids", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_get_ids), 0);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "mark_deleted", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_mark_deleted), 1);
@@ -226,14 +226,15 @@ private:
 
   static VALUE _hnsw_hierarchicalnsw_init(int argc, VALUE* argv, VALUE self) {
     VALUE kw_args = Qnil;
-    ID kw_table[5] = {rb_intern("space"), rb_intern("max_elements"), rb_intern("m"), rb_intern("ef_construction"),
-                      rb_intern("random_seed")};
-    VALUE kw_values[5] = {Qundef, Qundef, Qundef, Qundef, Qundef};
+    ID kw_table[6] = {rb_intern("space"),           rb_intern("max_elements"), rb_intern("m"),
+                      rb_intern("ef_construction"), rb_intern("random_seed"),  rb_intern("allow_replace_deleted")};
+    VALUE kw_values[6] = {Qundef, Qundef, Qundef, Qundef, Qundef, Qundef};
     rb_scan_args(argc, argv, ":", &kw_args);
-    rb_get_kwargs(kw_args, kw_table, 2, 3, kw_values);
+    rb_get_kwargs(kw_args, kw_table, 2, 4, kw_values);
     if (kw_values[2] == Qundef) kw_values[2] = INT2NUM(16);
     if (kw_values[3] == Qundef) kw_values[3] = INT2NUM(200);
     if (kw_values[4] == Qundef) kw_values[4] = INT2NUM(100);
+    if (kw_values[5] == Qundef) kw_values[5] = Qfalse;
 
     if (!(rb_obj_is_instance_of(kw_values[0], rb_cHnswlibL2Space) ||
           rb_obj_is_instance_of(kw_values[0], rb_cHnswlibInnerProductSpace))) {
@@ -256,6 +257,10 @@ private:
       rb_raise(rb_eTypeError, "expected random_seed, Integer");
       return Qnil;
     }
+    if (!RB_TYPE_P(kw_values[5], T_TRUE) && !RB_TYPE_P(kw_values[5], T_FALSE)) {
+      rb_raise(rb_eTypeError, "expected allow_replace_deleted, Boolean");
+      return Qnil;
+    }
 
     rb_iv_set(self, "@space", kw_values[0]);
     hnswlib::SpaceInterface<float>* space;
@@ -268,10 +273,11 @@ private:
     const size_t m = (size_t)NUM2INT(kw_values[2]);
     const size_t ef_construction = (size_t)NUM2INT(kw_values[3]);
     const size_t random_seed = (size_t)NUM2INT(kw_values[4]);
+    const bool allow_replace_deleted = kw_values[5] == Qtrue ? true : false;
 
     hnswlib::HierarchicalNSW<float>* ptr = get_hnsw_hierarchicalnsw(self);
     try {
-      new (ptr) hnswlib::HierarchicalNSW<float>(space, max_elements, m, ef_construction, random_seed);
+      new (ptr) hnswlib::HierarchicalNSW<float>(space, max_elements, m, ef_construction, random_seed, allow_replace_deleted);
     } catch (const std::runtime_error& e) {
       rb_raise(rb_eRuntimeError, "%s", e.what());
       return Qnil;
@@ -280,28 +286,49 @@ private:
     return Qnil;
   };
 
-  static VALUE _hnsw_hierarchicalnsw_add_point(VALUE self, VALUE arr, VALUE idx) {
+  static VALUE _hnsw_hierarchicalnsw_add_point(int argc, VALUE* argv, VALUE self) {
+    VALUE _arr, _idx, _replace_deleted;
+    VALUE kw_args = Qnil;
+    ID kw_table[1] = {rb_intern("replace_deleted")};
+    VALUE kw_values[1] = {Qundef};
+
+    rb_scan_args(argc, argv, "2:", &_arr, &_idx, &kw_args);
+    rb_get_kwargs(kw_args, kw_table, 0, 1, kw_values);
+    _replace_deleted = kw_values[0] != Qundef ? kw_values[0] : Qnil;
+
     const int dim = NUM2INT(rb_iv_get(rb_iv_get(self, "@space"), "@dim"));
 
-    if (!RB_TYPE_P(arr, T_ARRAY)) {
+    if (!RB_TYPE_P(_arr, T_ARRAY)) {
       rb_raise(rb_eArgError, "Expect point vector to be Ruby Array.");
       return Qfalse;
     }
-    if (!RB_INTEGER_TYPE_P(idx)) {
+    if (!RB_INTEGER_TYPE_P(_idx)) {
       rb_raise(rb_eArgError, "Expect index to be Ruby Integer.");
       return Qfalse;
     }
-    if (dim != RARRAY_LEN(arr)) {
+    if (dim != RARRAY_LEN(_arr)) {
       rb_raise(rb_eArgError, "Array size does not match to index dimensionality.");
       return Qfalse;
     }
+    if (!RB_TYPE_P(_replace_deleted, T_TRUE) && !RB_TYPE_P(_replace_deleted, T_FALSE)) {
+      rb_raise(rb_eArgError, "Expect replace_deleted to be Boolean.");
+      return Qfalse;
+    }
 
-    float* vec = (float*)ruby_xmalloc(dim * sizeof(float));
-    for (int i = 0; i < dim; i++) vec[i] = (float)NUM2DBL(rb_ary_entry(arr, i));
+    float* arr = (float*)ruby_xmalloc(dim * sizeof(float));
+    for (int i = 0; i < dim; i++) arr[i] = (float)NUM2DBL(rb_ary_entry(_arr, i));
+    const size_t idx = (size_t)NUM2INT(_idx);
+    const bool replace_deleted = _replace_deleted == Qtrue ? true : false;
 
-    get_hnsw_hierarchicalnsw(self)->addPoint((void*)vec, (size_t)NUM2INT(idx));
+    try {
+      get_hnsw_hierarchicalnsw(self)->addPoint((void*)arr, idx, replace_deleted);
+    } catch (const std::runtime_error& e) {
+      ruby_xfree(arr);
+      rb_raise(rb_eRuntimeError, "%s", e.what());
+      return Qfalse;
+    }
 
-    ruby_xfree(vec);
+    ruby_xfree(arr);
     return Qtrue;
   };
 
@@ -364,8 +391,27 @@ private:
     return Qnil;
   };
 
-  static VALUE _hnsw_hierarchicalnsw_load_index(VALUE self, VALUE _filename) {
+  static VALUE _hnsw_hierarchicalnsw_load_index(int argc, VALUE* argv, VALUE self) {
+    VALUE _filename, _allow_replace_deleted;
+    VALUE kw_args = Qnil;
+    ID kw_table[1] = {rb_intern("allow_replace_deleted")};
+    VALUE kw_values[1] = {Qundef};
+
+    rb_scan_args(argc, argv, "1:", &_filename, &kw_args);
+    rb_get_kwargs(kw_args, kw_table, 0, 1, kw_values);
+    _allow_replace_deleted = kw_values[0] != Qundef ? kw_values[0] : Qnil;
+
+    if (!RB_TYPE_P(_filename, T_STRING)) {
+      rb_raise(rb_eArgError, "Expect filename to be Ruby Array.");
+      return Qnil;
+    }
+    if (!RB_TYPE_P(_allow_replace_deleted, T_TRUE) && !RB_TYPE_P(_allow_replace_deleted, T_FALSE)) {
+      rb_raise(rb_eArgError, "Expect replace_deleted to be Boolean.");
+      return Qnil;
+    }
+
     std::string filename(StringValuePtr(_filename));
+    const bool allow_replace_deleted = _allow_replace_deleted == Qtrue ? true : false;
     VALUE ivspace = rb_iv_get(self, "@space");
     hnswlib::SpaceInterface<float>* space;
     if (rb_obj_is_instance_of(ivspace, rb_cHnswlibL2Space)) {
@@ -373,6 +419,7 @@ private:
     } else {
       space = RbHnswlibInnerProductSpace::get_hnsw_ipspace(ivspace);
     }
+
     hnswlib::HierarchicalNSW<float>* index = get_hnsw_hierarchicalnsw(self);
     if (index->data_level0_memory_) {
       free(index->data_level0_memory_);
@@ -392,12 +439,15 @@ private:
       delete index->visited_list_pool_;
       index->visited_list_pool_ = nullptr;
     }
+
     try {
       index->loadIndex(filename, space);
+      index->allow_replace_deleted_ = allow_replace_deleted;
     } catch (const std::runtime_error& e) {
       rb_raise(rb_eRuntimeError, "%s", e.what());
       return Qnil;
     }
+
     RB_GC_GUARD(_filename);
     return Qnil;
   };

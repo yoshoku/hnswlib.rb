@@ -31,7 +31,9 @@ module Hnswlib
     # @param m [Integer] The maximum number of outgoing connections in the graph
     # @param ef_construction [Integer] The size of the dynamic list for the nearest neighbors. It controls the index time/accuracy trade-off.
     # @param random_seed [Integer] The seed value using to initialize the random generator.
-    def initialize(n_features:, max_item:, metric: 'l2', m: 16, ef_construction: 200, random_seed: 100)
+    # @param allow_replace_removed [Boolean] The flag to replace removed element when adding new element.
+    def initialize(n_features:, max_item:, metric: 'l2', m: 16, ef_construction: 200,
+                   random_seed: 100, allow_replace_removed: false)
       @metric = metric
       space = if @metric == 'dot'
                 Hnswlib::InnerProductSpace.new(n_features)
@@ -39,7 +41,8 @@ module Hnswlib
                 Hnswlib::L2Space.new(n_features)
               end
       @index = Hnswlib::HierarchicalNSW.new(
-        space: space, max_elements: max_item, m: m, ef_construction: ef_construction, random_seed: random_seed
+        space: space, max_elements: max_item, m: m, ef_construction: ef_construction,
+        random_seed: random_seed, allow_replace_deleted: allow_replace_removed
       )
     end
 
@@ -47,9 +50,10 @@ module Hnswlib
     #
     # @param i [Integer] The ID of item.
     # @param v [Array] The vector of item.
+    # @param replace_removed [Boolean] The flag to replace a removed element.
     # @return [Boolean]
-    def add_item(i, v)
-      @index.add_point(v, i)
+    def add_item(i, v, replace_removed: false)
+      @index.add_point(v, i, replace_deleted: replace_removed)
     end
 
     # Return the item vector.
@@ -114,8 +118,9 @@ module Hnswlib
     # Load a search index from disk.
     #
     # @param filename [String] The filename of search index.
-    def load(filename)
-      @index.load_index(filename)
+    # @param allow_replace_removed [Boolean] The flag to replace removed element when adding new element.
+    def load(filename, allow_replace_removed: false)
+      @index.load_index(filename, allow_replace_deleted: allow_replace_removed)
     end
 
     # Calculate the distances between items.
