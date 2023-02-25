@@ -583,7 +583,7 @@ public:
     rb_define_alloc_func(rb_cHnswlibBruteforceSearch, hnsw_bruteforcesearch_alloc);
     rb_define_method(rb_cHnswlibBruteforceSearch, "initialize", RUBY_METHOD_FUNC(_hnsw_bruteforcesearch_init), -1);
     rb_define_method(rb_cHnswlibBruteforceSearch, "add_point", RUBY_METHOD_FUNC(_hnsw_bruteforcesearch_add_point), 2);
-    rb_define_method(rb_cHnswlibBruteforceSearch, "search_knn", RUBY_METHOD_FUNC(_hnsw_bruteforcesearch_search_knn), 2);
+    rb_define_method(rb_cHnswlibBruteforceSearch, "search_knn", RUBY_METHOD_FUNC(_hnsw_bruteforcesearch_search_knn), -1);
     rb_define_method(rb_cHnswlibBruteforceSearch, "save_index", RUBY_METHOD_FUNC(_hnsw_bruteforcesearch_save_index), 1);
     rb_define_method(rb_cHnswlibBruteforceSearch, "load_index", RUBY_METHOD_FUNC(_hnsw_bruteforcesearch_load_index), 1);
     rb_define_method(rb_cHnswlibBruteforceSearch, "remove_point", RUBY_METHOD_FUNC(_hnsw_bruteforcesearch_remove_point), 1);
@@ -664,7 +664,16 @@ private:
     return Qtrue;
   };
 
-  static VALUE _hnsw_bruteforcesearch_search_knn(VALUE self, VALUE arr, VALUE k) {
+  static VALUE _hnsw_bruteforcesearch_search_knn(int argc, VALUE* argv, VALUE self) {
+    VALUE arr, k, filter;
+    VALUE kw_args = Qnil;
+    ID kw_table[1] = {rb_intern("filter")};
+    VALUE kw_values[1] = {Qundef};
+
+    rb_scan_args(argc, argv, "2:", &arr, &k, &kw_args);
+    rb_get_kwargs(kw_args, kw_table, 0, 1, kw_values);
+    filter = kw_values[0] != Qundef ? kw_values[0] : Qnil;
+
     const int dim = NUM2INT(rb_iv_get(rb_iv_get(self, "@space"), "@dim"));
 
     if (!RB_TYPE_P(arr, T_ARRAY)) {
@@ -680,15 +689,26 @@ private:
       return Qnil;
     }
 
+    CustomFilterFunctor* filter_func = nullptr;
+    if (!NIL_P(filter)) {
+      try {
+        filter_func = new CustomFilterFunctor(filter);
+      } catch (const std::bad_alloc& e) {
+        rb_raise(rb_eRuntimeError, "%s", e.what());
+        return Qnil;
+      }
+    }
+
     float* vec = (float*)ruby_xmalloc(dim * sizeof(float));
     for (int i = 0; i < dim; i++) {
       vec[i] = (float)NUM2DBL(rb_ary_entry(arr, i));
     }
 
     std::priority_queue<std::pair<float, size_t>> result =
-        get_hnsw_bruteforcesearch(self)->searchKnn((void*)vec, (size_t)NUM2INT(k));
+        get_hnsw_bruteforcesearch(self)->searchKnn((void*)vec, (size_t)NUM2INT(k), filter_func);
 
     ruby_xfree(vec);
+    if (filter_func) delete filter_func;
 
     if (result.size() != (size_t)NUM2INT(k)) {
       rb_warning("Cannot return as many search results as the requested number of neighbors.");
