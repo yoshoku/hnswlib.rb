@@ -180,6 +180,19 @@ const rb_data_type_t RbHnswlibInnerProductSpace::hnsw_ipspace_type = {
 };
 // clang-format on
 
+class CustomFilterFunctor : public hnswlib::BaseFilterFunctor {
+public:
+  CustomFilterFunctor(const VALUE& callback) : callback_(callback) {}
+
+  bool operator()(hnswlib::labeltype id) {
+    VALUE result = rb_funcall(callback_, rb_intern("call"), 1, INT2NUM(id));
+    return result == Qtrue ? true : false;
+  }
+
+private:
+  VALUE callback_;
+};
+
 class RbHnswlibHierarchicalNSW {
 public:
   static VALUE hnsw_hierarchicalnsw_alloc(VALUE self) {
@@ -207,7 +220,7 @@ public:
     rb_define_alloc_func(rb_cHnswlibHierarchicalNSW, hnsw_hierarchicalnsw_alloc);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "initialize", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_init), -1);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "add_point", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_add_point), -1);
-    rb_define_method(rb_cHnswlibHierarchicalNSW, "search_knn", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_search_knn), 2);
+    rb_define_method(rb_cHnswlibHierarchicalNSW, "search_knn", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_search_knn), -1);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "save_index", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_save_index), 1);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "load_index", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_load_index), -1);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "get_point", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_get_point), 1);
@@ -332,7 +345,16 @@ private:
     return Qtrue;
   };
 
-  static VALUE _hnsw_hierarchicalnsw_search_knn(VALUE self, VALUE arr, VALUE k) {
+  static VALUE _hnsw_hierarchicalnsw_search_knn(int argc, VALUE* argv, VALUE self) {
+    VALUE arr, k, filter;
+    VALUE kw_args = Qnil;
+    ID kw_table[1] = {rb_intern("filter")};
+    VALUE kw_values[1] = {Qundef};
+
+    rb_scan_args(argc, argv, "2:", &arr, &k, &kw_args);
+    rb_get_kwargs(kw_args, kw_table, 0, 1, kw_values);
+    filter = kw_values[0] != Qundef ? kw_values[0] : Qnil;
+
     const int dim = NUM2INT(rb_iv_get(rb_iv_get(self, "@space"), "@dim"));
 
     if (!RB_TYPE_P(arr, T_ARRAY)) {
@@ -348,6 +370,16 @@ private:
       return Qnil;
     }
 
+    CustomFilterFunctor* filter_func = nullptr;
+    if (!NIL_P(filter)) {
+      try {
+        filter_func = new CustomFilterFunctor(filter);
+      } catch (const std::bad_alloc& e) {
+        rb_raise(rb_eRuntimeError, "%s", e.what());
+        return Qnil;
+      }
+    }
+
     float* vec = (float*)ruby_xmalloc(dim * sizeof(float));
     for (int i = 0; i < dim; i++) {
       vec[i] = (float)NUM2DBL(rb_ary_entry(arr, i));
@@ -355,7 +387,7 @@ private:
 
     std::priority_queue<std::pair<float, size_t>> result;
     try {
-      result = get_hnsw_hierarchicalnsw(self)->searchKnn((void*)vec, (size_t)NUM2INT(k));
+      result = get_hnsw_hierarchicalnsw(self)->searchKnn((void*)vec, (size_t)NUM2INT(k), filter_func);
     } catch (const std::runtime_error& e) {
       ruby_xfree(vec);
       rb_raise(rb_eRuntimeError, "%s", e.what());
@@ -363,6 +395,7 @@ private:
     }
 
     ruby_xfree(vec);
+    if (filter_func) delete filter_func;
 
     if (result.size() != (size_t)NUM2INT(k)) {
       rb_warning("Cannot return as many search results as the requested number of neighbors. Probably ef or M is too small.");

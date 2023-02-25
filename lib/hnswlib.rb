@@ -76,10 +76,11 @@ module Hnswlib
     # @param i [Integer] The ID of query item.
     # @param n [Integer] The number of nearest neighbors.
     # @param include_distances [Boolean] The flag indicating whether to returns all corresponding distances.
+    # @param filter [Proc] The function that filters elements by its labels.
     # @return [Array<Integer> or Array<Array<Integer>, Array<Float>>]
-    def get_nns_by_item(i, n, include_distances: false)
+    def get_nns_by_item(i, n, include_distances: false, filter: nil)
       v = @index.get_point(i)
-      ids, dists = @index.search_knn(v, n)
+      ids, dists = @index.search_knn(v, n, filter: filter)
       include_distances ? [ids, dists] : ids
     end
 
@@ -88,9 +89,10 @@ module Hnswlib
     # @param v [Array] The vector of query item.
     # @param n [Integer] The number of nearest neighbors.
     # @param include_distances [Boolean] The flag indicating whether to returns all corresponding distances.
+    # @param filter [Proc] The function that filters elements by its labels.
     # @return [Array<Integer> or Array<Array<Integer>, Array<Float>>]
-    def get_nns_by_vector(v, n, include_distances: false)
-      ids, dists = @index.search_knn(v, n)
+    def get_nns_by_vector(v, n, include_distances: false, filter: nil)
+      ids, dists = @index.search_knn(v, n, filter: filter)
       include_distances ? [ids, dists] : ids
     end
 

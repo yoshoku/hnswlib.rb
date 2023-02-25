@@ -59,6 +59,18 @@ RSpec.describe Hnswlib do
           expect(subject).to match([[0, 1, 2], [0, 1, 2]])
         end
       end
+
+      context 'when filter function is given' do # rubocop:disable RSpec/MultipleMemoizedHelpers
+        subject { index.get_nns_by_vector(query, n_neighbors, filter: filter) }
+
+        let(:filter) do
+          proc { |label| label.odd? }
+        end
+
+        it 'returns filtered nearest neighbors' do
+          expect(subject).to match([1, 3])
+        end
+      end
     end
 
     describe '#get_item' do
