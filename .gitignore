@@ -18,4 +18,5 @@ mkmf.log
 .rspec_status
 
 /spec/test.ann
+/spec/hnswlib/bruteforce.ann
 /bin/
