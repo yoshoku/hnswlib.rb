@@ -226,6 +226,7 @@ public:
     rb_define_method(rb_cHnswlibHierarchicalNSW, "get_point", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_get_point), 1);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "get_ids", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_get_ids), 0);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "mark_deleted", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_mark_deleted), 1);
+    rb_define_method(rb_cHnswlibHierarchicalNSW, "unmark_deleted", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_unmark_deleted), 1);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "resize_index", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_resize_index), 1);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "set_ef", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_set_ef), 1);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "max_elements", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_max_elements), 0);
@@ -508,6 +509,16 @@ private:
   static VALUE _hnsw_hierarchicalnsw_mark_deleted(VALUE self, VALUE idx) {
     try {
       get_hnsw_hierarchicalnsw(self)->markDelete((size_t)NUM2INT(idx));
+    } catch (const std::runtime_error& e) {
+      rb_raise(rb_eRuntimeError, "%s", e.what());
+      return Qnil;
+    }
+    return Qnil;
+  };
+
+  static VALUE _hnsw_hierarchicalnsw_unmark_deleted(VALUE self, VALUE idx) {
+    try {
+      get_hnsw_hierarchicalnsw(self)->unmarkDelete((size_t)NUM2INT(idx));
     } catch (const std::runtime_error& e) {
       rb_raise(rb_eRuntimeError, "%s", e.what());
       return Qnil;
