@@ -23,6 +23,9 @@
 
 #include <hnswlib.h>
 
+#include <new>
+#include <vector>
+
 VALUE rb_cHnswlibL2Space;
 VALUE rb_cHnswlibInnerProductSpace;
 VALUE rb_cHnswlibHierarchicalNSW;
@@ -534,6 +537,9 @@ private:
     try {
       get_hnsw_hierarchicalnsw(self)->resizeIndex((size_t)NUM2INT(new_max_elements));
     } catch (const std::runtime_error& e) {
+      rb_raise(rb_eRuntimeError, "%s", e.what());
+      return Qnil;
+    } catch (const std::bad_alloc& e) {
       rb_raise(rb_eRuntimeError, "%s", e.what());
       return Qnil;
     }
