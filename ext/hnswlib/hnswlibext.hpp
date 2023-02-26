@@ -548,7 +548,7 @@ private:
   };
 
   static VALUE _hnsw_hierarchicalnsw_set_ef(VALUE self, VALUE ef) {
-    get_hnsw_hierarchicalnsw(self)->ef_ = (size_t)NUM2INT(ef);
+    get_hnsw_hierarchicalnsw(self)->setEf((size_t)NUM2INT(ef));
     return Qnil;
   };
 
