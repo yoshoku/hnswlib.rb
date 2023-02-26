@@ -323,7 +323,7 @@ private:
       rb_raise(rb_eArgError, "Array size does not match to index dimensionality.");
       return Qfalse;
     }
-    if (!RB_TYPE_P(_replace_deleted, T_TRUE) && !RB_TYPE_P(_replace_deleted, T_FALSE)) {
+    if (!NIL_P(_replace_deleted) && !RB_TYPE_P(_replace_deleted, T_TRUE) && !RB_TYPE_P(_replace_deleted, T_FALSE)) {
       rb_raise(rb_eArgError, "Expect replace_deleted to be Boolean.");
       return Qfalse;
     }
@@ -432,13 +432,14 @@ private:
 
     rb_scan_args(argc, argv, "1:", &_filename, &kw_args);
     rb_get_kwargs(kw_args, kw_table, 0, 1, kw_values);
-    _allow_replace_deleted = kw_values[0] != Qundef ? kw_values[0] : Qnil;
+    _allow_replace_deleted = kw_values[0] != Qundef ? kw_values[0] : Qfalse;
 
     if (!RB_TYPE_P(_filename, T_STRING)) {
       rb_raise(rb_eArgError, "Expect filename to be Ruby Array.");
       return Qnil;
     }
-    if (!RB_TYPE_P(_allow_replace_deleted, T_TRUE) && !RB_TYPE_P(_allow_replace_deleted, T_FALSE)) {
+    if (!NIL_P(_allow_replace_deleted) && !RB_TYPE_P(_allow_replace_deleted, T_TRUE) &&
+        !RB_TYPE_P(_allow_replace_deleted, T_FALSE)) {
       rb_raise(rb_eArgError, "Expect replace_deleted to be Boolean.");
       return Qnil;
     }
