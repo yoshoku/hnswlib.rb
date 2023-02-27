@@ -236,6 +236,7 @@ public:
     rb_define_method(rb_cHnswlibHierarchicalNSW, "max_elements", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_max_elements), 0);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "current_count", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_current_count), 0);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "ef_construction", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_ef_construction), 0);
+    rb_define_method(rb_cHnswlibHierarchicalNSW, "m", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_m), 0);
     rb_define_attr(rb_cHnswlibHierarchicalNSW, "space", 1, 0);
     return rb_cHnswlibHierarchicalNSW;
   };
@@ -568,6 +569,10 @@ private:
 
   static VALUE _hnsw_hierarchicalnsw_ef_construction(VALUE self) {
     return INT2NUM((int)(get_hnsw_hierarchicalnsw(self)->ef_construction_));
+  };
+
+  static VALUE _hnsw_hierarchicalnsw_m(VALUE self) {
+    return INT2NUM((int)(get_hnsw_hierarchicalnsw(self)->M_));
   };
 };
 
