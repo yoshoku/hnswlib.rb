@@ -67,12 +67,12 @@ private:
   static VALUE _hnsw_l2space_init(VALUE self, VALUE dim) {
     rb_iv_set(self, "@dim", dim);
     hnswlib::L2Space* ptr = get_hnsw_l2space(self);
-    new (ptr) hnswlib::L2Space(NUM2INT(rb_iv_get(self, "@dim")));
+    new (ptr) hnswlib::L2Space(NUM2SIZET(rb_iv_get(self, "@dim")));
     return Qnil;
   };
 
   static VALUE _hnsw_l2space_distance(VALUE self, VALUE arr_a, VALUE arr_b) {
-    const int dim = NUM2INT(rb_iv_get(self, "@dim"));
+    const size_t dim = NUM2SIZET(rb_iv_get(self, "@dim"));
     if (!RB_TYPE_P(arr_a, T_ARRAY) || !RB_TYPE_P(arr_b, T_ARRAY)) {
       rb_raise(rb_eArgError, "Expect input vector to be Ruby Array.");
       return Qnil;
@@ -82,9 +82,9 @@ private:
       return Qnil;
     }
     float* vec_a = (float*)ruby_xmalloc(dim * sizeof(float));
-    for (int i = 0; i < dim; i++) vec_a[i] = (float)NUM2DBL(rb_ary_entry(arr_a, i));
+    for (size_t i = 0; i < dim; i++) vec_a[i] = (float)NUM2DBL(rb_ary_entry(arr_a, i));
     float* vec_b = (float*)ruby_xmalloc(dim * sizeof(float));
-    for (int i = 0; i < dim; i++) vec_b[i] = (float)NUM2DBL(rb_ary_entry(arr_b, i));
+    for (size_t i = 0; i < dim; i++) vec_b[i] = (float)NUM2DBL(rb_ary_entry(arr_b, i));
     hnswlib::DISTFUNC<float> dist_func = get_hnsw_l2space(self)->get_dist_func();
     const float dist = dist_func(vec_a, vec_b, get_hnsw_l2space(self)->get_dist_func_param());
     ruby_xfree(vec_a);
@@ -143,12 +143,12 @@ private:
   static VALUE _hnsw_ipspace_init(VALUE self, VALUE dim) {
     rb_iv_set(self, "@dim", dim);
     hnswlib::InnerProductSpace* ptr = get_hnsw_ipspace(self);
-    new (ptr) hnswlib::InnerProductSpace(NUM2INT(rb_iv_get(self, "@dim")));
+    new (ptr) hnswlib::InnerProductSpace(NUM2SIZET(rb_iv_get(self, "@dim")));
     return Qnil;
   };
 
   static VALUE _hnsw_ipspace_distance(VALUE self, VALUE arr_a, VALUE arr_b) {
-    const int dim = NUM2INT(rb_iv_get(self, "@dim"));
+    const size_t dim = NUM2SIZET(rb_iv_get(self, "@dim"));
     if (!RB_TYPE_P(arr_a, T_ARRAY) || !RB_TYPE_P(arr_b, T_ARRAY)) {
       rb_raise(rb_eArgError, "Expect input vector to be Ruby Array.");
       return Qnil;
@@ -158,9 +158,9 @@ private:
       return Qnil;
     }
     float* vec_a = (float*)ruby_xmalloc(dim * sizeof(float));
-    for (int i = 0; i < dim; i++) vec_a[i] = (float)NUM2DBL(rb_ary_entry(arr_a, i));
+    for (size_t i = 0; i < dim; i++) vec_a[i] = (float)NUM2DBL(rb_ary_entry(arr_a, i));
     float* vec_b = (float*)ruby_xmalloc(dim * sizeof(float));
-    for (int i = 0; i < dim; i++) vec_b[i] = (float)NUM2DBL(rb_ary_entry(arr_b, i));
+    for (size_t i = 0; i < dim; i++) vec_b[i] = (float)NUM2DBL(rb_ary_entry(arr_b, i));
     hnswlib::DISTFUNC<float> dist_func = get_hnsw_ipspace(self)->get_dist_func();
     const float dist = dist_func(vec_a, vec_b, get_hnsw_ipspace(self)->get_dist_func_param());
     ruby_xfree(vec_a);
@@ -188,7 +188,7 @@ public:
   CustomFilterFunctor(const VALUE& callback) : callback_(callback) {}
 
   bool operator()(hnswlib::labeltype id) {
-    VALUE result = rb_funcall(callback_, rb_intern("call"), 1, INT2NUM(id));
+    VALUE result = rb_funcall(callback_, rb_intern("call"), 1, SIZET2NUM(id));
     return result == Qtrue ? true : false;
   }
 
@@ -251,9 +251,9 @@ private:
     VALUE kw_values[6] = {Qundef, Qundef, Qundef, Qundef, Qundef, Qundef};
     rb_scan_args(argc, argv, ":", &kw_args);
     rb_get_kwargs(kw_args, kw_table, 2, 4, kw_values);
-    if (kw_values[2] == Qundef) kw_values[2] = INT2NUM(16);
-    if (kw_values[3] == Qundef) kw_values[3] = INT2NUM(200);
-    if (kw_values[4] == Qundef) kw_values[4] = INT2NUM(100);
+    if (kw_values[2] == Qundef) kw_values[2] = SIZET2NUM(16);
+    if (kw_values[3] == Qundef) kw_values[3] = SIZET2NUM(200);
+    if (kw_values[4] == Qundef) kw_values[4] = SIZET2NUM(100);
     if (kw_values[5] == Qundef) kw_values[5] = Qfalse;
 
     if (!(rb_obj_is_instance_of(kw_values[0], rb_cHnswlibL2Space) ||
@@ -289,10 +289,10 @@ private:
     } else {
       space = RbHnswlibInnerProductSpace::get_hnsw_ipspace(kw_values[0]);
     }
-    const size_t max_elements = (size_t)NUM2INT(kw_values[1]);
-    const size_t m = (size_t)NUM2INT(kw_values[2]);
-    const size_t ef_construction = (size_t)NUM2INT(kw_values[3]);
-    const size_t random_seed = (size_t)NUM2INT(kw_values[4]);
+    const size_t max_elements = NUM2SIZET(kw_values[1]);
+    const size_t m = NUM2SIZET(kw_values[2]);
+    const size_t ef_construction = NUM2SIZET(kw_values[3]);
+    const size_t random_seed = NUM2SIZET(kw_values[4]);
     const bool allow_replace_deleted = kw_values[5] == Qtrue ? true : false;
 
     hnswlib::HierarchicalNSW<float>* ptr = get_hnsw_hierarchicalnsw(self);
@@ -316,7 +316,7 @@ private:
     rb_get_kwargs(kw_args, kw_table, 0, 1, kw_values);
     _replace_deleted = kw_values[0] != Qundef ? kw_values[0] : Qnil;
 
-    const int dim = NUM2INT(rb_iv_get(rb_iv_get(self, "@space"), "@dim"));
+    const size_t dim = NUM2SIZET(rb_iv_get(rb_iv_get(self, "@space"), "@dim"));
 
     if (!RB_TYPE_P(_arr, T_ARRAY)) {
       rb_raise(rb_eArgError, "Expect point vector to be Ruby Array.");
@@ -336,8 +336,8 @@ private:
     }
 
     float* arr = (float*)ruby_xmalloc(dim * sizeof(float));
-    for (int i = 0; i < dim; i++) arr[i] = (float)NUM2DBL(rb_ary_entry(_arr, i));
-    const size_t idx = (size_t)NUM2INT(_idx);
+    for (size_t i = 0; i < dim; i++) arr[i] = (float)NUM2DBL(rb_ary_entry(_arr, i));
+    const size_t idx = NUM2SIZET(_idx);
     const bool replace_deleted = _replace_deleted == Qtrue ? true : false;
 
     try {
@@ -362,7 +362,7 @@ private:
     rb_get_kwargs(kw_args, kw_table, 0, 1, kw_values);
     filter = kw_values[0] != Qundef ? kw_values[0] : Qnil;
 
-    const int dim = NUM2INT(rb_iv_get(rb_iv_get(self, "@space"), "@dim"));
+    const size_t dim = NUM2SIZET(rb_iv_get(rb_iv_get(self, "@space"), "@dim"));
 
     if (!RB_TYPE_P(arr, T_ARRAY)) {
       rb_raise(rb_eArgError, "Expect query vector to be Ruby Array.");
@@ -388,13 +388,13 @@ private:
     }
 
     float* vec = (float*)ruby_xmalloc(dim * sizeof(float));
-    for (int i = 0; i < dim; i++) {
+    for (size_t i = 0; i < dim; i++) {
       vec[i] = (float)NUM2DBL(rb_ary_entry(arr, i));
     }
 
     std::priority_queue<std::pair<float, size_t>> result;
     try {
-      result = get_hnsw_hierarchicalnsw(self)->searchKnn((void*)vec, (size_t)NUM2INT(k), filter_func);
+      result = get_hnsw_hierarchicalnsw(self)->searchKnn((void*)vec, NUM2SIZET(k), filter_func);
     } catch (const std::runtime_error& e) {
       ruby_xfree(vec);
       rb_raise(rb_eRuntimeError, "%s", e.what());
@@ -404,7 +404,7 @@ private:
     ruby_xfree(vec);
     if (filter_func) delete filter_func;
 
-    if (result.size() != (size_t)NUM2INT(k)) {
+    if (result.size() != NUM2SIZET(k)) {
       rb_warning("Cannot return as many search results as the requested number of neighbors. Probably ef or M is too small.");
     }
 
@@ -414,7 +414,7 @@ private:
     while (!result.empty()) {
       const std::pair<float, size_t>& result_tuple = result.top();
       rb_ary_unshift(distances_arr, DBL2NUM((double)result_tuple.first));
-      rb_ary_unshift(neighbors_arr, INT2NUM((int)result_tuple.second));
+      rb_ary_unshift(neighbors_arr, SIZET2NUM(result_tuple.second));
       result.pop();
     }
 
@@ -496,7 +496,7 @@ private:
   static VALUE _hnsw_hierarchicalnsw_get_point(VALUE self, VALUE idx) {
     VALUE ret = Qnil;
     try {
-      std::vector<float> vec = get_hnsw_hierarchicalnsw(self)->template getDataByLabel<float>((size_t)NUM2INT(idx));
+      std::vector<float> vec = get_hnsw_hierarchicalnsw(self)->template getDataByLabel<float>(NUM2SIZET(idx));
       ret = rb_ary_new2(vec.size());
       for (size_t i = 0; i < vec.size(); i++) rb_ary_store(ret, i, DBL2NUM((double)vec[i]));
     } catch (const std::runtime_error& e) {
@@ -508,13 +508,13 @@ private:
 
   static VALUE _hnsw_hierarchicalnsw_get_ids(VALUE self) {
     VALUE ret = rb_ary_new();
-    for (auto kv : get_hnsw_hierarchicalnsw(self)->label_lookup_) rb_ary_push(ret, INT2NUM((int)kv.first));
+    for (auto kv : get_hnsw_hierarchicalnsw(self)->label_lookup_) rb_ary_push(ret, SIZET2NUM(kv.first));
     return ret;
   };
 
   static VALUE _hnsw_hierarchicalnsw_mark_deleted(VALUE self, VALUE idx) {
     try {
-      get_hnsw_hierarchicalnsw(self)->markDelete((size_t)NUM2INT(idx));
+      get_hnsw_hierarchicalnsw(self)->markDelete(NUM2SIZET(idx));
     } catch (const std::runtime_error& e) {
       rb_raise(rb_eRuntimeError, "%s", e.what());
       return Qnil;
@@ -524,7 +524,7 @@ private:
 
   static VALUE _hnsw_hierarchicalnsw_unmark_deleted(VALUE self, VALUE idx) {
     try {
-      get_hnsw_hierarchicalnsw(self)->unmarkDelete((size_t)NUM2INT(idx));
+      get_hnsw_hierarchicalnsw(self)->unmarkDelete(NUM2SIZET(idx));
     } catch (const std::runtime_error& e) {
       rb_raise(rb_eRuntimeError, "%s", e.what());
       return Qnil;
@@ -533,12 +533,12 @@ private:
   };
 
   static VALUE _hnsw_hierarchicalnsw_resize_index(VALUE self, VALUE new_max_elements) {
-    if ((size_t)NUM2INT(new_max_elements) < get_hnsw_hierarchicalnsw(self)->cur_element_count) {
+    if (NUM2SIZET(new_max_elements) < get_hnsw_hierarchicalnsw(self)->cur_element_count) {
       rb_raise(rb_eArgError, "Cannot resize, max element is less than the current number of elements.");
       return Qnil;
     }
     try {
-      get_hnsw_hierarchicalnsw(self)->resizeIndex((size_t)NUM2INT(new_max_elements));
+      get_hnsw_hierarchicalnsw(self)->resizeIndex(NUM2SIZET(new_max_elements));
     } catch (const std::runtime_error& e) {
       rb_raise(rb_eRuntimeError, "%s", e.what());
       return Qnil;
@@ -550,30 +550,25 @@ private:
   };
 
   static VALUE _hnsw_hierarchicalnsw_set_ef(VALUE self, VALUE ef) {
-    get_hnsw_hierarchicalnsw(self)->setEf((size_t)NUM2INT(ef));
+    get_hnsw_hierarchicalnsw(self)->setEf(NUM2SIZET(ef));
     return Qnil;
   };
 
-  static VALUE _hnsw_hierarchicalnsw_get_ef(VALUE self) {
-    const size_t ef = get_hnsw_hierarchicalnsw(self)->ef_;
-    return INT2NUM(ef);
-  };
+  static VALUE _hnsw_hierarchicalnsw_get_ef(VALUE self) { return SIZET2NUM(get_hnsw_hierarchicalnsw(self)->ef_); };
 
   static VALUE _hnsw_hierarchicalnsw_max_elements(VALUE self) {
-    return INT2NUM((int)(get_hnsw_hierarchicalnsw(self)->max_elements_));
+    return SIZET2NUM(get_hnsw_hierarchicalnsw(self)->max_elements_);
   };
 
   static VALUE _hnsw_hierarchicalnsw_current_count(VALUE self) {
-    return INT2NUM((int)(get_hnsw_hierarchicalnsw(self)->cur_element_count));
+    return SIZET2NUM(get_hnsw_hierarchicalnsw(self)->cur_element_count);
   };
 
   static VALUE _hnsw_hierarchicalnsw_ef_construction(VALUE self) {
-    return INT2NUM((int)(get_hnsw_hierarchicalnsw(self)->ef_construction_));
+    return SIZET2NUM(get_hnsw_hierarchicalnsw(self)->ef_construction_);
   };
 
-  static VALUE _hnsw_hierarchicalnsw_m(VALUE self) {
-    return INT2NUM((int)(get_hnsw_hierarchicalnsw(self)->M_));
-  };
+  static VALUE _hnsw_hierarchicalnsw_m(VALUE self) { return SIZET2NUM(get_hnsw_hierarchicalnsw(self)->M_); };
 };
 
 // clang-format off
@@ -654,7 +649,7 @@ private:
     } else {
       space = RbHnswlibInnerProductSpace::get_hnsw_ipspace(kw_values[0]);
     }
-    const size_t max_elements = (size_t)NUM2INT(kw_values[1]);
+    const size_t max_elements = NUM2SIZET(kw_values[1]);
 
     hnswlib::BruteforceSearch<float>* ptr = get_hnsw_bruteforcesearch(self);
     try {
@@ -668,7 +663,7 @@ private:
   };
 
   static VALUE _hnsw_bruteforcesearch_add_point(VALUE self, VALUE arr, VALUE idx) {
-    const int dim = NUM2INT(rb_iv_get(rb_iv_get(self, "@space"), "@dim"));
+    const size_t dim = NUM2SIZET(rb_iv_get(rb_iv_get(self, "@space"), "@dim"));
 
     if (!RB_TYPE_P(arr, T_ARRAY)) {
       rb_raise(rb_eArgError, "Expect point vector to be Ruby Array.");
@@ -684,10 +679,10 @@ private:
     }
 
     float* vec = (float*)ruby_xmalloc(dim * sizeof(float));
-    for (int i = 0; i < dim; i++) vec[i] = (float)NUM2DBL(rb_ary_entry(arr, i));
+    for (size_t i = 0; i < dim; i++) vec[i] = (float)NUM2DBL(rb_ary_entry(arr, i));
 
     try {
-      get_hnsw_bruteforcesearch(self)->addPoint((void*)vec, (size_t)NUM2INT(idx));
+      get_hnsw_bruteforcesearch(self)->addPoint((void*)vec, NUM2SIZET(idx));
     } catch (const std::runtime_error& e) {
       ruby_xfree(vec);
       rb_raise(rb_eRuntimeError, "%s", e.what());
@@ -708,7 +703,7 @@ private:
     rb_get_kwargs(kw_args, kw_table, 0, 1, kw_values);
     filter = kw_values[0] != Qundef ? kw_values[0] : Qnil;
 
-    const int dim = NUM2INT(rb_iv_get(rb_iv_get(self, "@space"), "@dim"));
+    const size_t dim = NUM2SIZET(rb_iv_get(rb_iv_get(self, "@space"), "@dim"));
 
     if (!RB_TYPE_P(arr, T_ARRAY)) {
       rb_raise(rb_eArgError, "Expect query vector to be Ruby Array.");
@@ -734,17 +729,17 @@ private:
     }
 
     float* vec = (float*)ruby_xmalloc(dim * sizeof(float));
-    for (int i = 0; i < dim; i++) {
+    for (size_t i = 0; i < dim; i++) {
       vec[i] = (float)NUM2DBL(rb_ary_entry(arr, i));
     }
 
     std::priority_queue<std::pair<float, size_t>> result =
-        get_hnsw_bruteforcesearch(self)->searchKnn((void*)vec, (size_t)NUM2INT(k), filter_func);
+        get_hnsw_bruteforcesearch(self)->searchKnn((void*)vec, NUM2SIZET(k), filter_func);
 
     ruby_xfree(vec);
     if (filter_func) delete filter_func;
 
-    if (result.size() != (size_t)NUM2INT(k)) {
+    if (result.size() != NUM2SIZET(k)) {
       rb_warning("Cannot return as many search results as the requested number of neighbors.");
     }
 
@@ -754,7 +749,7 @@ private:
     while (!result.empty()) {
       const std::pair<float, size_t>& result_tuple = result.top();
       rb_ary_unshift(distances_arr, DBL2NUM((double)result_tuple.first));
-      rb_ary_unshift(neighbors_arr, INT2NUM((int)result_tuple.second));
+      rb_ary_unshift(neighbors_arr, SIZET2NUM(result_tuple.second));
       result.pop();
     }
 
@@ -796,16 +791,16 @@ private:
   };
 
   static VALUE _hnsw_bruteforcesearch_remove_point(VALUE self, VALUE idx) {
-    get_hnsw_bruteforcesearch(self)->removePoint((size_t)NUM2INT(idx));
+    get_hnsw_bruteforcesearch(self)->removePoint(NUM2SIZET(idx));
     return Qnil;
   };
 
   static VALUE _hnsw_bruteforcesearch_max_elements(VALUE self) {
-    return INT2NUM((int)(get_hnsw_bruteforcesearch(self)->maxelements_));
+    return SIZET2NUM(get_hnsw_bruteforcesearch(self)->maxelements_);
   };
 
   static VALUE _hnsw_bruteforcesearch_current_count(VALUE self) {
-    return INT2NUM((int)(get_hnsw_bruteforcesearch(self)->cur_element_count));
+    return SIZET2NUM(get_hnsw_bruteforcesearch(self)->cur_element_count);
   };
 };
 
