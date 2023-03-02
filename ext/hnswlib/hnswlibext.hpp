@@ -314,7 +314,7 @@ private:
 
     rb_scan_args(argc, argv, "2:", &_arr, &_idx, &kw_args);
     rb_get_kwargs(kw_args, kw_table, 0, 1, kw_values);
-    _replace_deleted = kw_values[0] != Qundef ? kw_values[0] : Qnil;
+    _replace_deleted = kw_values[0] != Qundef ? kw_values[0] : Qfalse;
 
     const size_t dim = NUM2SIZET(rb_iv_get(rb_iv_get(self, "@space"), "@dim"));
 
@@ -330,7 +330,7 @@ private:
       rb_raise(rb_eArgError, "Array size does not match to index dimensionality.");
       return Qfalse;
     }
-    if (!NIL_P(_replace_deleted) && !RB_TYPE_P(_replace_deleted, T_TRUE) && !RB_TYPE_P(_replace_deleted, T_FALSE)) {
+    if (!RB_TYPE_P(_replace_deleted, T_TRUE) && !RB_TYPE_P(_replace_deleted, T_FALSE)) {
       rb_raise(rb_eArgError, "Expect replace_deleted to be Boolean.");
       return Qfalse;
     }
