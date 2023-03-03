@@ -99,7 +99,8 @@ module Hnswlib
     # @param m [Integer] The maximum number of outgoing connections in the graph
     # @param ef_construction [Integer] The size of the dynamic list for the nearest neighbors.
     # @param random_seed [Integer] The seed value using to initialize the random generator.
-    def initialize(space:, max_elements:, m: 16, ef_construction: 200, random_seed: 100)
+    # @param allow_replace_deleted [Boolean] The flag to replace deleted item when adding new item.
+    def initialize(space:, max_elements:, m: 16, ef_construction: 200, random_seed: 100, allow_replace_deleted: false)
       @space = space
     end
 
@@ -107,15 +108,17 @@ module Hnswlib
     #
     # @param arr [Array] The vector of item.
     # @param idx [Integer] The ID of item.
+    # @param replace_deleted [Boolean] The flag to replace a deleted item.
     # @return [Boolean]
-    def add_point(arr, idx); end
+    def add_point(arr, idx, replace_deleted: false); end
 
     # Search the k closest items.
     #
     # @param arr [Array] The vector of query item.
     # @param k [Integer] The number of nearest neighbors.
+    # @param filter [Proc] The function that filters elements by its labels.
     # @return [Array<Array<Integer>, Array<Float>>]
-    def search_knn(arr, k); end
+    def search_knn(arr, k, filter: nil); end
 
     # Save the search index to disk.
     #
@@ -125,7 +128,8 @@ module Hnswlib
     # Load a search index from disk.
     #
     # @param filename [String] The filename of search index.
-    def load_index(filename); end
+    # @param allow_replace_deleted [Boolean] The flag to replace deleted item when adding new item.
+    def load_index(filename, allow_replace_deleted: false); end
 
     # Return the item vector.
     #
