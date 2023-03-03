@@ -211,8 +211,9 @@ module Hnswlib
     #
     # @param arr [Array] The vector of query item.
     # @param k [Integer] The number of nearest neighbors.
+    # @param filter [Proc] The function that filters elements by its labels.
     # @return [Array<Array<Integer>, Array<Float>>]
-    def search_knn(arr, k); end
+    def search_knn(arr, k, filter: nil); end
 
     # Save the search index to disk.
     #
