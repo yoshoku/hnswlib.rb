@@ -1,3 +1,9 @@
+## [0.7.0] - 2023-03-04
+
+- Update bundled hnswlib version to 0.7.0.
+- Add support for replacing an element marked for deletion with a new element.
+- Add support filtering function by label in search_knn method of BruteforeceSearch and HierarchicalNSW.
+
 ## [0.6.2] - 2022-06-25
 
 - Refactor codes and configs with RuboCop and clang-format.
