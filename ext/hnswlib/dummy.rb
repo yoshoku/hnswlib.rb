@@ -74,10 +74,10 @@ module Hnswlib
   #   require 'hnswlib'
   #
   #   n_features = 32
-  #   space = Hnswlib::L2Space.new(n_features)
-  #
   #   max_elements = 100
-  #   index = HierarchicalNSW.new(space: space, max_elements: max_elements)
+  #
+  #   index = HierarchicalNSW.new(space: space, dim: n_features)
+  #   index.init_index(max_elements: max_elements)
   #
   #   max_elements.times do |i|
   #     vec = Array.new(n_features) { rand }
@@ -94,15 +94,19 @@ module Hnswlib
 
     # Create a new HierarchicalNSW.
     #
-    # @param space [L2Space | InnerProductSpace] The metric space of search index.
+    # @param space [String] The metric space name of search index ('l2', 'ip', or 'cosine').
+    # @param dim [Integer] The number of dimensions (features).
+    def initialize(space:, dim:); end
+
+    # Intialize search index.
+    #
     # @param max_elements [Integer] The maximum number of items.
     # @param m [Integer] The maximum number of outgoing connections in the graph
     # @param ef_construction [Integer] The size of the dynamic list for the nearest neighbors.
     # @param random_seed [Integer] The seed value using to initialize the random generator.
     # @param allow_replace_deleted [Boolean] The flag to replace deleted item when adding new item.
-    def initialize(space:, max_elements:, m: 16, ef_construction: 200, random_seed: 100, allow_replace_deleted: false)
-      @space = space
-    end
+    # @return [Nil]
+    def init_index(max_elements:, m: 16, ef_construction: 200, random_seed: 100, allow_replace_deleted: false); end
 
     # Add item to be indexed.
     #
@@ -175,10 +179,10 @@ module Hnswlib
   #   require 'hnswlib'
   #
   #   n_features = 32
-  #   space = Hnswlib::L2Space.new(n_features)
-  #
   #   max_elements = 100
-  #   index = BruteforceSearch.new(space: space, max_elements: max_elements)
+  #
+  #   index = BruteforceSearch.new(space: 'l2', dim: n_features)
+  #   index.init_index(max_elements: max_elements)
   #
   #   max_elements.times do |i|
   #     vec = Array.new(n_features) { rand }
@@ -192,13 +196,16 @@ module Hnswlib
     # @return [L2Space | InnerProductSpace]
     attr_reader :space
 
-    # Create a new BruteforceSearch
+    # Create a new BruteforceSearch.
     #
-    # @param space [L2Space | InnerProductSpace] The metric space of search index.
+    # @param space [String] The metric space name of search index ('l2', 'ip', or 'cosine').
+    def initialize(space:); end
+
+    # Initialize search index.
+    #
     # @param max_elements [Integer] The maximum number of items.
-    def initialize(space:, max_elements:)
-      @space = space
-    end
+    # @return [Nil]
+    def init_index(max_elements:); end
 
     # Add item to be indexed.
     #

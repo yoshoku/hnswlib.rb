@@ -18,6 +18,7 @@ module Hnswlib
   #
   #   index.get_nns_by_item(0, 100)
   #
+  # @deprecated This class was prepared as a class with an interface similar to Annoy, but it is not very useful and will be deleted in the next version.
   class HnswIndex
     # Returns the metric of index.
     # @return [String]
