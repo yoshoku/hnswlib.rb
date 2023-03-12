@@ -48,19 +48,26 @@ $ gem install hnswlib -- --with-cxxflags=-march=native
 ```ruby
 require 'hnswlib'
 
-f = 40 # length of item vector that will be indexed.
-t = Hnswlib::HnswIndex.new(n_features: f, max_item: 1000)
+f = 40 # length of datum point vector that will be indexed.
+t = Hnswlib::HierarchicalNSW.new(space: 'l2', dim: f)
+t.init_index(max_elements: 1000)
 
 1000.times do |i|
   v = Array.new(f) { rand }
-  t.add_item(i, v)
+  t.add_point(v, i)
 end
 
-t.save('test.ann')
+t.save_index('test.ann')
+```
 
-u = Hnswlib::HnswIndex.new(n_features: f, max_item: 1000)
-u.load('test.ann')
-p u.get_nns_by_item(0, 100) # will find the 100 nearest neighbors.
+```ruby
+require 'hnswlib'
+
+u = Hnswlib::HierarchicalNSW.new(space: 'l2', dim: f)
+u.load_index('test.ann')
+
+q = Array.new(f) { rand }
+p u.search_knn(q, 100) # will find the 100 nearest neighbors.
 ```
 
 ## License
