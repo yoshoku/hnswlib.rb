@@ -27,7 +27,7 @@ module Hnswlib
     #
     # @param n_features [Integer] The number of features (dimensions) of stored vector.
     # @param max_item [Integer] The maximum number of items.
-    # @param metric [String] The distance metric between vectors ('l2' or 'dot').
+    # @param metric [String] The distance metric between vectors ('l2', 'dot', or 'cosine').
     # @param m [Integer] The maximum number of outgoing connections in the graph
     # @param ef_construction [Integer] The size of the dynamic list for the nearest neighbors. It controls the index time/accuracy trade-off.
     # @param random_seed [Integer] The seed value using to initialize the random generator.

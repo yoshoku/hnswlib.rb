@@ -147,17 +147,39 @@ RSpec.describe Hnswlib::HierarchicalNSW do
       index.add_point([2, 2, 1], 3)
     end
 
-    it 'searches nearest neighbors' do
-      expect(index.search_knn([1, 2, 2.5], 2)).to match([[0, 1], [0.25, 1.25]])
-    end
-
-    context 'when given filter function' do
-      let(:filter) do
-        proc { |label| label.odd? }
+    context "when space is 'l2'" do
+      it 'searches nearest neighbors' do
+        expect(index.search_knn([1, 2, 2.5], 2)).to match([[0, 1], [0.25, 1.25]])
       end
 
-      it 'returns filtered serch results' do
-        expect(index.search_knn([1, 2, 3], 4, filter: filter)[0]).to match([1, 3])
+      context 'when given filter function' do
+        let(:filter) do
+          proc { |label| label.odd? }
+        end
+
+        it 'returns filtered serch results' do
+          expect(index.search_knn([1, 2, 3], 4, filter: filter)[0]).to match([1, 3])
+        end
+      end
+    end
+
+    context "when space is 'ip'" do
+      let(:space) { 'ip' }
+      let(:result) { index.search_knn([1, 2, 2.5], 2) }
+
+      it 'searches nearest neighbors based on 1 subtract inner product', :aggregate_failures do
+        expect(result[0]).to match([2, 0])
+        expect(result[1]).to match([-15, -11.5])
+      end
+    end
+
+    context "when space is 'cosine'" do
+      let(:space) { 'cosine' }
+      let(:result) { index.search_knn([1, 2, 2.5], 2) }
+
+      it 'searches nearest neighbors based on cosine distance', :aggregate_failures do
+        expect(result[0]).to match([0, 2])
+        expect(result[1]).to be_within(1e-6).of([0.00397616, 0.026271])
       end
     end
   end
