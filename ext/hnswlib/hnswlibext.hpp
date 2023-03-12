@@ -689,8 +689,9 @@ private:
       rb_raise(rb_eTypeError, "expected space, String");
       return Qnil;
     }
-    if (strcmp(StringValueCStr(kw_values[0]), "l2") != 0 && strcmp(StringValueCStr(kw_values[0]), "ip") != 0) {
-      rb_raise(rb_eArgError, "expected space, 'l2' or 'ip' only");
+    if (strcmp(StringValueCStr(kw_values[0]), "l2") != 0 && strcmp(StringValueCStr(kw_values[0]), "ip") != 0 &&
+        strcmp(StringValueCStr(kw_values[0]), "cosine") != 0) {
+      rb_raise(rb_eArgError, "expected space, 'l2', 'ip', or 'cosine' only");
       return Qnil;
     }
     if (!RB_INTEGER_TYPE_P(kw_values[1])) {
@@ -705,6 +706,9 @@ private:
       rb_iv_set(self, "@space",
                 rb_funcall(rb_const_get(rb_mHnswlib, rb_intern("InnerProductSpace")), rb_intern("new"), 1, kw_values[1]));
     }
+
+    rb_iv_set(self, "@normalize", Qfalse);
+    if (strcmp(StringValueCStr(kw_values[0]), "cosine") == 0) rb_iv_set(self, "@normalize", Qtrue);
 
     return Qnil;
   };
@@ -762,6 +766,15 @@ private:
     float* vec = (float*)ruby_xmalloc(dim * sizeof(float));
     for (size_t i = 0; i < dim; i++) vec[i] = (float)NUM2DBL(rb_ary_entry(arr, i));
 
+    if (rb_iv_get(self, "@normalize") == Qtrue) {
+      float norm = 0.0;
+      for (size_t i = 0; i < dim; i++) norm += vec[i] * vec[i];
+      norm = std::sqrt(std::fabs(norm));
+      if (norm >= 0.0) {
+        for (size_t i = 0; i < dim; i++) vec[i] /= norm;
+      }
+    }
+
     try {
       get_hnsw_bruteforcesearch(self)->addPoint((void*)vec, NUM2SIZET(idx));
     } catch (const std::runtime_error& e) {
@@ -810,8 +823,15 @@ private:
     }
 
     float* vec = (float*)ruby_xmalloc(dim * sizeof(float));
-    for (size_t i = 0; i < dim; i++) {
-      vec[i] = (float)NUM2DBL(rb_ary_entry(arr, i));
+    for (size_t i = 0; i < dim; i++) vec[i] = (float)NUM2DBL(rb_ary_entry(arr, i));
+
+    if (rb_iv_get(self, "@normalize") == Qtrue) {
+      float norm = 0.0;
+      for (size_t i = 0; i < dim; i++) norm += vec[i] * vec[i];
+      norm = std::sqrt(std::fabs(norm));
+      if (norm >= 0.0) {
+        for (size_t i = 0; i < dim; i++) vec[i] /= norm;
+      }
     }
 
     std::priority_queue<std::pair<float, size_t>> result =
