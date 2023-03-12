@@ -35,13 +35,9 @@ module Hnswlib
     def initialize(n_features:, max_item:, metric: 'l2', m: 16, ef_construction: 200,
                    random_seed: 100, allow_replace_removed: false)
       @metric = metric
-      space = if @metric == 'dot'
-                Hnswlib::InnerProductSpace.new(n_features)
-              else
-                Hnswlib::L2Space.new(n_features)
-              end
+      space = @metric == 'dot' ? 'ip' : 'l2'
       @index = Hnswlib::HierarchicalNSW.new(
-        space: space, max_elements: max_item, m: m, ef_construction: ef_construction,
+        space: space, dim: n_features, max_elements: max_item, m: m, ef_construction: ef_construction,
         random_seed: random_seed, allow_replace_deleted: allow_replace_removed
       )
     end

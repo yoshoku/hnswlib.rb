@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 RSpec.describe Hnswlib::HierarchicalNSW do
-  let(:n_dimensions) { 3 }
+  let(:dim) { 3 }
   let(:max_elements) { 4 }
   let(:ef_construction) { 100 }
   let(:em) { 10 }
-  let(:space) { Hnswlib::L2Space.new(n_dimensions) }
-  let(:index) { described_class.new(space: space, max_elements: max_elements, ef_construction: ef_construction, m: em) }
+  let(:space) { 'l2' }
+  let(:index) do
+    described_class.new(space: space, dim: dim, max_elements: max_elements, ef_construction: ef_construction, m: em)
+  end
 
   describe '#add_pint' do
     it 'adds new point' do
@@ -22,10 +24,10 @@ RSpec.describe Hnswlib::HierarchicalNSW do
     context 'when given array with mis-matched sizes to 1st argument' do
       it 'raises ArgumentError', :aggregate_failures do
         expect do
-          index.add_point([1] * (n_dimensions + 1), 0)
+          index.add_point([1] * (dim + 1), 0)
         end.to raise_error(ArgumentError, /Array size does not match to index dimensionality/)
         expect do
-          index.add_point([1] * (n_dimensions - 1), 0)
+          index.add_point([1] * (dim - 1), 0)
         end.to raise_error(ArgumentError, /Array size does not match to index dimensionality/)
       end
     end
@@ -33,7 +35,7 @@ RSpec.describe Hnswlib::HierarchicalNSW do
     context 'when given non-integer object to 2nd argument' do
       it 'raises ArgumentError' do
         expect do
-          index.add_point([1] * n_dimensions, '0')
+          index.add_point([1] * dim, '0')
         end.to raise_error(ArgumentError, /Expect index to be Ruby Integer/)
       end
     end
@@ -75,11 +77,11 @@ RSpec.describe Hnswlib::HierarchicalNSW do
     end
 
     it 'returns label list' do
-      expect(index.get_ids).to match_array([0, 2])
+      expect(index.get_ids).to contain_exactly(0, 2)
     end
 
     context 'when index is empty' do
-      let(:empty_index) { described_class.new(space: space, max_elements: max_elements) }
+      let(:empty_index) { described_class.new(space: space, dim: dim, max_elements: max_elements) }
 
       it 'returns empty array', :aggregate_failures do
         expect(empty_index.get_ids).to be_a(Array)
@@ -162,7 +164,7 @@ RSpec.describe Hnswlib::HierarchicalNSW do
 
   describe '#save_index and #load_index' do
     let(:filename) { File.expand_path("#{__dir__}/bruteforce.ann") }
-    let(:loaded_index) { described_class.new(space: space, max_elements: max_elements) }
+    let(:loaded_index) { described_class.new(space: space, dim: dim, max_elements: max_elements) }
 
     before do
       index.add_point([1, 2, 5], 0)
@@ -218,7 +220,7 @@ RSpec.describe Hnswlib::HierarchicalNSW do
 
   describe 'allow_replace_deleted argument' do
     context 'when allow_replace_deleted is false' do
-      let(:index) { described_class.new(space: space, max_elements: 4, allow_replace_deleted: false) }
+      let(:index) { described_class.new(space: space, dim: dim, max_elements: 4, allow_replace_deleted: false) }
 
       before do
         index.add_point([1, 0, 2], 0)
@@ -239,7 +241,7 @@ RSpec.describe Hnswlib::HierarchicalNSW do
     end
 
     context 'when allow_replace_deleted is true' do
-      let(:index) { described_class.new(space: space, max_elements: 4, allow_replace_deleted: true) }
+      let(:index) { described_class.new(space: space, dim: dim, max_elements: 4, allow_replace_deleted: true) }
 
       before do
         index.add_point([1, 0, 2], 0)

@@ -247,54 +247,64 @@ private:
 
   static VALUE _hnsw_hierarchicalnsw_init(int argc, VALUE* argv, VALUE self) {
     VALUE kw_args = Qnil;
-    ID kw_table[6] = {rb_intern("space"),           rb_intern("max_elements"), rb_intern("m"),
-                      rb_intern("ef_construction"), rb_intern("random_seed"),  rb_intern("allow_replace_deleted")};
-    VALUE kw_values[6] = {Qundef, Qundef, Qundef, Qundef, Qundef, Qundef};
+    ID kw_table[7] = {rb_intern("space"),           rb_intern("dim"),         rb_intern("max_elements"),         rb_intern("m"),
+                      rb_intern("ef_construction"), rb_intern("random_seed"), rb_intern("allow_replace_deleted")};
+    VALUE kw_values[7] = {Qundef, Qundef, Qundef, Qundef, Qundef, Qundef, Qundef};
     rb_scan_args(argc, argv, ":", &kw_args);
-    rb_get_kwargs(kw_args, kw_table, 2, 4, kw_values);
-    if (kw_values[2] == Qundef) kw_values[2] = SIZET2NUM(16);
-    if (kw_values[3] == Qundef) kw_values[3] = SIZET2NUM(200);
-    if (kw_values[4] == Qundef) kw_values[4] = SIZET2NUM(100);
-    if (kw_values[5] == Qundef) kw_values[5] = Qfalse;
+    rb_get_kwargs(kw_args, kw_table, 3, 4, kw_values);
+    if (kw_values[3] == Qundef) kw_values[3] = SIZET2NUM(16);
+    if (kw_values[4] == Qundef) kw_values[4] = SIZET2NUM(200);
+    if (kw_values[5] == Qundef) kw_values[5] = SIZET2NUM(100);
+    if (kw_values[6] == Qundef) kw_values[6] = Qfalse;
 
-    if (!(rb_obj_is_instance_of(kw_values[0], rb_cHnswlibL2Space) ||
-          rb_obj_is_instance_of(kw_values[0], rb_cHnswlibInnerProductSpace))) {
-      rb_raise(rb_eTypeError, "expected space, Hnswlib::L2Space or Hnswlib::InnerProductSpace");
+    if (!RB_TYPE_P(kw_values[0], T_STRING)) {
+      rb_raise(rb_eTypeError, "expected space, String");
+      return Qnil;
+    }
+    if (strcmp(StringValueCStr(kw_values[0]), "l2") != 0 && strcmp(StringValueCStr(kw_values[0]), "ip") != 0) {
+      rb_raise(rb_eArgError, "expected space, 'l2' or 'ip' only");
       return Qnil;
     }
     if (!RB_INTEGER_TYPE_P(kw_values[1])) {
-      rb_raise(rb_eTypeError, "expected max_elements, Integer");
+      rb_raise(rb_eTypeError, "expected dim, Integer");
       return Qnil;
     }
     if (!RB_INTEGER_TYPE_P(kw_values[2])) {
-      rb_raise(rb_eTypeError, "expected m, Integer");
+      rb_raise(rb_eTypeError, "expected max_elements, Integer");
       return Qnil;
     }
     if (!RB_INTEGER_TYPE_P(kw_values[3])) {
-      rb_raise(rb_eTypeError, "expected ef_construction, Integer");
+      rb_raise(rb_eTypeError, "expected m, Integer");
       return Qnil;
     }
     if (!RB_INTEGER_TYPE_P(kw_values[4])) {
+      rb_raise(rb_eTypeError, "expected ef_construction, Integer");
+      return Qnil;
+    }
+    if (!RB_INTEGER_TYPE_P(kw_values[5])) {
       rb_raise(rb_eTypeError, "expected random_seed, Integer");
       return Qnil;
     }
-    if (!RB_TYPE_P(kw_values[5], T_TRUE) && !RB_TYPE_P(kw_values[5], T_FALSE)) {
+    if (!RB_TYPE_P(kw_values[6], T_TRUE) && !RB_TYPE_P(kw_values[6], T_FALSE)) {
       rb_raise(rb_eTypeError, "expected allow_replace_deleted, Boolean");
       return Qnil;
     }
 
-    rb_iv_set(self, "@space", kw_values[0]);
     hnswlib::SpaceInterface<float>* space;
-    if (rb_obj_is_instance_of(kw_values[0], rb_cHnswlibL2Space)) {
-      space = RbHnswlibL2Space::get_hnsw_l2space(kw_values[0]);
+    if (strcmp(StringValueCStr(kw_values[0]), "l2") == 0) {
+      rb_iv_set(self, "@space", rb_funcall(rb_const_get(rb_mHnswlib, rb_intern("L2Space")), rb_intern("new"), 1, kw_values[1]));
+      space = RbHnswlibL2Space::get_hnsw_l2space(rb_iv_get(self, "@space"));
     } else {
-      space = RbHnswlibInnerProductSpace::get_hnsw_ipspace(kw_values[0]);
+      rb_iv_set(self, "@space",
+                rb_funcall(rb_const_get(rb_mHnswlib, rb_intern("InnerProductSpace")), rb_intern("new"), 1, kw_values[1]));
+      space = RbHnswlibInnerProductSpace::get_hnsw_ipspace(rb_iv_get(self, "@space"));
     }
-    const size_t max_elements = NUM2SIZET(kw_values[1]);
-    const size_t m = NUM2SIZET(kw_values[2]);
-    const size_t ef_construction = NUM2SIZET(kw_values[3]);
-    const size_t random_seed = NUM2SIZET(kw_values[4]);
-    const bool allow_replace_deleted = kw_values[5] == Qtrue ? true : false;
+
+    const size_t max_elements = NUM2SIZET(kw_values[2]);
+    const size_t m = NUM2SIZET(kw_values[3]);
+    const size_t ef_construction = NUM2SIZET(kw_values[4]);
+    const size_t random_seed = NUM2SIZET(kw_values[5]);
+    const bool allow_replace_deleted = kw_values[6] == Qtrue ? true : false;
 
     hnswlib::HierarchicalNSW<float>* ptr = get_hnsw_hierarchicalnsw(self);
     try {
