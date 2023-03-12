@@ -4,7 +4,9 @@ RSpec.describe Hnswlib::BruteforceSearch do
   let(:dim) { 3 }
   let(:max_elements) { 4 }
   let(:space) { 'l2' }
-  let(:index) { described_class.new(space: space, dim: dim, max_elements: max_elements) }
+  let(:index) { described_class.new(space: space, dim: dim) }
+
+  before { index.init_index(max_elements: max_elements) }
 
   describe '#add_pint' do
     it 'adds new point' do
@@ -85,9 +87,23 @@ RSpec.describe Hnswlib::BruteforceSearch do
     end
   end
 
+  describe '#init_index' do
+    before do
+      index.add_point([1, 2, 5], 0)
+      index.add_point([1, 2, 4], 1)
+      index.add_point([1, 2, 3], 2)
+      index.init_index(max_elements: 2)
+    end
+
+    it 'initializes search index', :aggregate_failures do
+      expect(index.max_elements).to eq(2)
+      expect(index.current_count).to eq(0)
+    end
+  end
+
   describe '#save_index and #load_index' do
     let(:filename) { File.expand_path("#{__dir__}/bruteforce.ann") }
-    let(:loaded_index) { described_class.new(space: space, dim: dim, max_elements: max_elements) }
+    let(:loaded_index) { described_class.new(space: space, dim: dim) }
 
     before do
       index.add_point([1, 2, 5], 0)

@@ -40,7 +40,8 @@ module Hnswlib
   class BruteforceSearch
     attr_accessor space: (::Hnswlib::L2Space | ::Hnswlib::InnerProductSpace)
 
-    def initialize: (space: (::Hnswlib::L2Space | ::Hnswlib::InnerProductSpace) space, max_elements: Integer max_elements) -> void
+    def initialize: (space: String space, dim: Integer dim) -> void
+    def init_index: (max_elements: Integer max_elements) -> void
     def add_point: (Array[Float] arr, Integer idx) -> bool
     def current_count: () -> Integer
     def load_index: (String filename) -> void

@@ -639,7 +639,8 @@ public:
   static VALUE define_class(VALUE outer) {
     rb_cHnswlibBruteforceSearch = rb_define_class_under(outer, "BruteforceSearch", rb_cObject);
     rb_define_alloc_func(rb_cHnswlibBruteforceSearch, hnsw_bruteforcesearch_alloc);
-    rb_define_method(rb_cHnswlibBruteforceSearch, "initialize", RUBY_METHOD_FUNC(_hnsw_bruteforcesearch_init), -1);
+    rb_define_method(rb_cHnswlibBruteforceSearch, "initialize", RUBY_METHOD_FUNC(_hnsw_bruteforcesearch_initialize), -1);
+    rb_define_method(rb_cHnswlibBruteforceSearch, "init_index", RUBY_METHOD_FUNC(_hnsw_bruteforcesearch_init_index), -1);
     rb_define_method(rb_cHnswlibBruteforceSearch, "add_point", RUBY_METHOD_FUNC(_hnsw_bruteforcesearch_add_point), 2);
     rb_define_method(rb_cHnswlibBruteforceSearch, "search_knn", RUBY_METHOD_FUNC(_hnsw_bruteforcesearch_search_knn), -1);
     rb_define_method(rb_cHnswlibBruteforceSearch, "save_index", RUBY_METHOD_FUNC(_hnsw_bruteforcesearch_save_index), 1);
@@ -654,12 +655,12 @@ public:
 private:
   static const rb_data_type_t hnsw_bruteforcesearch_type;
 
-  static VALUE _hnsw_bruteforcesearch_init(int argc, VALUE* argv, VALUE self) {
+  static VALUE _hnsw_bruteforcesearch_initialize(int argc, VALUE* argv, VALUE self) {
     VALUE kw_args = Qnil;
-    ID kw_table[3] = {rb_intern("space"), rb_intern("dim"), rb_intern("max_elements")};
-    VALUE kw_values[3] = {Qundef, Qundef, Qundef};
+    ID kw_table[2] = {rb_intern("space"), rb_intern("dim")};
+    VALUE kw_values[2] = {Qundef, Qundef};
     rb_scan_args(argc, argv, ":", &kw_args);
-    rb_get_kwargs(kw_args, kw_table, 3, 0, kw_values);
+    rb_get_kwargs(kw_args, kw_table, 2, 0, kw_values);
 
     if (!RB_TYPE_P(kw_values[0], T_STRING)) {
       rb_raise(rb_eTypeError, "expected space, String");
@@ -670,28 +671,46 @@ private:
       return Qnil;
     }
     if (!RB_INTEGER_TYPE_P(kw_values[1])) {
-      rb_raise(rb_eTypeError, "expected max_elements, Integer");
-      return Qnil;
-    }
-    if (!RB_INTEGER_TYPE_P(kw_values[2])) {
-      rb_raise(rb_eTypeError, "expected max_elements, Integer");
+      rb_raise(rb_eTypeError, "expected dim, Integer");
       return Qnil;
     }
 
     hnswlib::SpaceInterface<float>* space;
     if (strcmp(StringValueCStr(kw_values[0]), "l2") == 0) {
       rb_iv_set(self, "@space", rb_funcall(rb_const_get(rb_mHnswlib, rb_intern("L2Space")), rb_intern("new"), 1, kw_values[1]));
-      space = RbHnswlibL2Space::get_hnsw_l2space(rb_iv_get(self, "@space"));
     } else {
       rb_iv_set(self, "@space",
                 rb_funcall(rb_const_get(rb_mHnswlib, rb_intern("InnerProductSpace")), rb_intern("new"), 1, kw_values[1]));
-      space = RbHnswlibInnerProductSpace::get_hnsw_ipspace(rb_iv_get(self, "@space"));
     }
 
-    const size_t max_elements = NUM2SIZET(kw_values[2]);
+    return Qnil;
+  };
+
+  static VALUE _hnsw_bruteforcesearch_init_index(int argc, VALUE* argv, VALUE self) {
+    VALUE kw_args = Qnil;
+    ID kw_table[1] = {rb_intern("max_elements")};
+    VALUE kw_values[1] = {Qundef};
+    rb_scan_args(argc, argv, ":", &kw_args);
+    rb_get_kwargs(kw_args, kw_table, 1, 0, kw_values);
+
+    if (!RB_INTEGER_TYPE_P(kw_values[0])) {
+      rb_raise(rb_eTypeError, "expected max_elements, Integer");
+      return Qnil;
+    }
+
+    hnswlib::SpaceInterface<float>* space = nullptr;
+    VALUE ivspace = rb_iv_get(self, "@space");
+    if (rb_obj_is_instance_of(ivspace, rb_cHnswlibL2Space)) {
+      space = RbHnswlibL2Space::get_hnsw_l2space(ivspace);
+    } else {
+      space = RbHnswlibInnerProductSpace::get_hnsw_ipspace(ivspace);
+    }
+
+    const size_t max_elements = NUM2SIZET(kw_values[0]);
 
     hnswlib::BruteforceSearch<float>* ptr = get_hnsw_bruteforcesearch(self);
     try {
+      ptr->~BruteforceSearch();
       new (ptr) hnswlib::BruteforceSearch<float>(space, max_elements);
     } catch (const std::runtime_error& e) {
       rb_raise(rb_eRuntimeError, "%s", e.what());
