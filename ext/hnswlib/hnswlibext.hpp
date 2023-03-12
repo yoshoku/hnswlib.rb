@@ -638,29 +638,39 @@ private:
 
   static VALUE _hnsw_bruteforcesearch_init(int argc, VALUE* argv, VALUE self) {
     VALUE kw_args = Qnil;
-    ID kw_table[2] = {rb_intern("space"), rb_intern("max_elements")};
-    VALUE kw_values[2] = {Qundef, Qundef};
+    ID kw_table[3] = {rb_intern("space"), rb_intern("dim"), rb_intern("max_elements")};
+    VALUE kw_values[3] = {Qundef, Qundef, Qundef};
     rb_scan_args(argc, argv, ":", &kw_args);
-    rb_get_kwargs(kw_args, kw_table, 2, 0, kw_values);
+    rb_get_kwargs(kw_args, kw_table, 3, 0, kw_values);
 
-    if (!(rb_obj_is_instance_of(kw_values[0], rb_cHnswlibL2Space) ||
-          rb_obj_is_instance_of(kw_values[0], rb_cHnswlibInnerProductSpace))) {
-      rb_raise(rb_eTypeError, "expected space, Hnswlib::L2Space or Hnswlib::InnerProductSpace");
+    if (!RB_TYPE_P(kw_values[0], T_STRING)) {
+      rb_raise(rb_eTypeError, "expected space, String");
+      return Qnil;
+    }
+    if (strcmp(StringValueCStr(kw_values[0]), "l2") != 0 && strcmp(StringValueCStr(kw_values[0]), "ip") != 0) {
+      rb_raise(rb_eArgError, "expected space, 'l2' or 'ip' only");
       return Qnil;
     }
     if (!RB_INTEGER_TYPE_P(kw_values[1])) {
       rb_raise(rb_eTypeError, "expected max_elements, Integer");
       return Qnil;
     }
-
-    rb_iv_set(self, "@space", kw_values[0]);
-    hnswlib::SpaceInterface<float>* space;
-    if (rb_obj_is_instance_of(kw_values[0], rb_cHnswlibL2Space)) {
-      space = RbHnswlibL2Space::get_hnsw_l2space(kw_values[0]);
-    } else {
-      space = RbHnswlibInnerProductSpace::get_hnsw_ipspace(kw_values[0]);
+    if (!RB_INTEGER_TYPE_P(kw_values[2])) {
+      rb_raise(rb_eTypeError, "expected max_elements, Integer");
+      return Qnil;
     }
-    const size_t max_elements = NUM2SIZET(kw_values[1]);
+
+    hnswlib::SpaceInterface<float>* space;
+    if (strcmp(StringValueCStr(kw_values[0]), "l2") == 0) {
+      rb_iv_set(self, "@space", rb_funcall(rb_const_get(rb_mHnswlib, rb_intern("L2Space")), rb_intern("new"), 1, kw_values[1]));
+      space = RbHnswlibL2Space::get_hnsw_l2space(rb_iv_get(self, "@space"));
+    } else {
+      rb_iv_set(self, "@space",
+                rb_funcall(rb_const_get(rb_mHnswlib, rb_intern("InnerProductSpace")), rb_intern("new"), 1, kw_values[1]));
+      space = RbHnswlibInnerProductSpace::get_hnsw_ipspace(rb_iv_get(self, "@space"));
+    }
+
+    const size_t max_elements = NUM2SIZET(kw_values[2]);
 
     hnswlib::BruteforceSearch<float>* ptr = get_hnsw_bruteforcesearch(self);
     try {

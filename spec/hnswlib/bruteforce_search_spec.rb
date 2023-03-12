@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.describe Hnswlib::BruteforceSearch do
-  let(:n_dimensions) { 3 }
+  let(:dim) { 3 }
   let(:max_elements) { 4 }
-  let(:space) { Hnswlib::L2Space.new(n_dimensions) }
-  let(:index) { described_class.new(space: space, max_elements: max_elements) }
+  let(:space) { 'l2' }
+  let(:index) { described_class.new(space: space, dim: dim, max_elements: max_elements) }
 
   describe '#add_pint' do
     it 'adds new point' do
@@ -20,10 +20,10 @@ RSpec.describe Hnswlib::BruteforceSearch do
     context 'when given array with mis-matched sizes to 1st argument' do
       it 'raises ArgumentError', :aggregate_failures do
         expect do
-          index.add_point([1] * (n_dimensions + 1), 0)
+          index.add_point([1] * (dim + 1), 0)
         end.to raise_error(ArgumentError, /Array size does not match to index dimensionality/)
         expect do
-          index.add_point([1] * (n_dimensions - 1), 0)
+          index.add_point([1] * (dim - 1), 0)
         end.to raise_error(ArgumentError, /Array size does not match to index dimensionality/)
       end
     end
@@ -31,7 +31,7 @@ RSpec.describe Hnswlib::BruteforceSearch do
     context 'when given non-integer object to 2nd argument' do
       it 'raises ArgumentError' do
         expect do
-          index.add_point([1] * n_dimensions, '0')
+          index.add_point([1] * dim, '0')
         end.to raise_error(ArgumentError, /Expect index to be Ruby Integer/)
       end
     end
@@ -87,7 +87,7 @@ RSpec.describe Hnswlib::BruteforceSearch do
 
   describe '#save_index and #load_index' do
     let(:filename) { File.expand_path("#{__dir__}/bruteforce.ann") }
-    let(:loaded_index) { described_class.new(space: space, max_elements: max_elements) }
+    let(:loaded_index) { described_class.new(space: space, dim: dim, max_elements: max_elements) }
 
     before do
       index.add_point([1, 2, 5], 0)
