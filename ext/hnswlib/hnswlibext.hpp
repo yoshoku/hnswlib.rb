@@ -222,7 +222,8 @@ public:
   static VALUE define_class(VALUE outer) {
     rb_cHnswlibHierarchicalNSW = rb_define_class_under(outer, "HierarchicalNSW", rb_cObject);
     rb_define_alloc_func(rb_cHnswlibHierarchicalNSW, hnsw_hierarchicalnsw_alloc);
-    rb_define_method(rb_cHnswlibHierarchicalNSW, "initialize", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_init), -1);
+    rb_define_method(rb_cHnswlibHierarchicalNSW, "initialize", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_initialize), -1);
+    rb_define_method(rb_cHnswlibHierarchicalNSW, "init_index", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_init_index), -1);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "add_point", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_add_point), -1);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "search_knn", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_search_knn), -1);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "save_index", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_save_index), 1);
@@ -245,17 +246,12 @@ public:
 private:
   static const rb_data_type_t hnsw_hierarchicalnsw_type;
 
-  static VALUE _hnsw_hierarchicalnsw_init(int argc, VALUE* argv, VALUE self) {
+  static VALUE _hnsw_hierarchicalnsw_initialize(int argc, VALUE* argv, VALUE self) {
     VALUE kw_args = Qnil;
-    ID kw_table[7] = {rb_intern("space"),           rb_intern("dim"),         rb_intern("max_elements"),         rb_intern("m"),
-                      rb_intern("ef_construction"), rb_intern("random_seed"), rb_intern("allow_replace_deleted")};
-    VALUE kw_values[7] = {Qundef, Qundef, Qundef, Qundef, Qundef, Qundef, Qundef};
+    ID kw_table[2] = {rb_intern("space"), rb_intern("dim")};
+    VALUE kw_values[2] = {Qundef, Qundef};
     rb_scan_args(argc, argv, ":", &kw_args);
-    rb_get_kwargs(kw_args, kw_table, 3, 4, kw_values);
-    if (kw_values[3] == Qundef) kw_values[3] = SIZET2NUM(16);
-    if (kw_values[4] == Qundef) kw_values[4] = SIZET2NUM(200);
-    if (kw_values[5] == Qundef) kw_values[5] = SIZET2NUM(100);
-    if (kw_values[6] == Qundef) kw_values[6] = Qfalse;
+    rb_get_kwargs(kw_args, kw_table, 2, 0, kw_values);
 
     if (!RB_TYPE_P(kw_values[0], T_STRING)) {
       rb_raise(rb_eTypeError, "expected space, String");
@@ -269,45 +265,67 @@ private:
       rb_raise(rb_eTypeError, "expected dim, Integer");
       return Qnil;
     }
-    if (!RB_INTEGER_TYPE_P(kw_values[2])) {
+
+    if (strcmp(StringValueCStr(kw_values[0]), "l2") == 0) {
+      rb_iv_set(self, "@space", rb_funcall(rb_const_get(rb_mHnswlib, rb_intern("L2Space")), rb_intern("new"), 1, kw_values[1]));
+    } else {
+      rb_iv_set(self, "@space",
+                rb_funcall(rb_const_get(rb_mHnswlib, rb_intern("InnerProductSpace")), rb_intern("new"), 1, kw_values[1]));
+    }
+
+    return Qnil;
+  };
+
+  static VALUE _hnsw_hierarchicalnsw_init_index(int argc, VALUE* argv, VALUE self) {
+    VALUE kw_args = Qnil;
+    ID kw_table[5] = {rb_intern("max_elements"), rb_intern("m"), rb_intern("ef_construction"), rb_intern("random_seed"),
+                      rb_intern("allow_replace_deleted")};
+    VALUE kw_values[5] = {Qundef, Qundef, Qundef, Qundef, Qundef};
+    rb_scan_args(argc, argv, ":", &kw_args);
+    rb_get_kwargs(kw_args, kw_table, 1, 4, kw_values);
+    if (kw_values[1] == Qundef) kw_values[1] = SIZET2NUM(16);
+    if (kw_values[2] == Qundef) kw_values[2] = SIZET2NUM(200);
+    if (kw_values[3] == Qundef) kw_values[3] = SIZET2NUM(100);
+    if (kw_values[4] == Qundef) kw_values[4] = Qfalse;
+
+    if (!RB_INTEGER_TYPE_P(kw_values[0])) {
       rb_raise(rb_eTypeError, "expected max_elements, Integer");
       return Qnil;
     }
-    if (!RB_INTEGER_TYPE_P(kw_values[3])) {
+    if (!RB_INTEGER_TYPE_P(kw_values[1])) {
       rb_raise(rb_eTypeError, "expected m, Integer");
       return Qnil;
     }
-    if (!RB_INTEGER_TYPE_P(kw_values[4])) {
+    if (!RB_INTEGER_TYPE_P(kw_values[2])) {
       rb_raise(rb_eTypeError, "expected ef_construction, Integer");
       return Qnil;
     }
-    if (!RB_INTEGER_TYPE_P(kw_values[5])) {
+    if (!RB_INTEGER_TYPE_P(kw_values[3])) {
       rb_raise(rb_eTypeError, "expected random_seed, Integer");
       return Qnil;
     }
-    if (!RB_TYPE_P(kw_values[6], T_TRUE) && !RB_TYPE_P(kw_values[6], T_FALSE)) {
+    if (!RB_TYPE_P(kw_values[4], T_TRUE) && !RB_TYPE_P(kw_values[4], T_FALSE)) {
       rb_raise(rb_eTypeError, "expected allow_replace_deleted, Boolean");
       return Qnil;
     }
 
-    hnswlib::SpaceInterface<float>* space;
-    if (strcmp(StringValueCStr(kw_values[0]), "l2") == 0) {
-      rb_iv_set(self, "@space", rb_funcall(rb_const_get(rb_mHnswlib, rb_intern("L2Space")), rb_intern("new"), 1, kw_values[1]));
-      space = RbHnswlibL2Space::get_hnsw_l2space(rb_iv_get(self, "@space"));
+    hnswlib::SpaceInterface<float>* space = nullptr;
+    VALUE ivspace = rb_iv_get(self, "@space");
+    if (rb_obj_is_instance_of(ivspace, rb_cHnswlibL2Space)) {
+      space = RbHnswlibL2Space::get_hnsw_l2space(ivspace);
     } else {
-      rb_iv_set(self, "@space",
-                rb_funcall(rb_const_get(rb_mHnswlib, rb_intern("InnerProductSpace")), rb_intern("new"), 1, kw_values[1]));
-      space = RbHnswlibInnerProductSpace::get_hnsw_ipspace(rb_iv_get(self, "@space"));
+      space = RbHnswlibInnerProductSpace::get_hnsw_ipspace(ivspace);
     }
 
-    const size_t max_elements = NUM2SIZET(kw_values[2]);
-    const size_t m = NUM2SIZET(kw_values[3]);
-    const size_t ef_construction = NUM2SIZET(kw_values[4]);
-    const size_t random_seed = NUM2SIZET(kw_values[5]);
-    const bool allow_replace_deleted = kw_values[6] == Qtrue ? true : false;
+    const size_t max_elements = NUM2SIZET(kw_values[0]);
+    const size_t m = NUM2SIZET(kw_values[1]);
+    const size_t ef_construction = NUM2SIZET(kw_values[2]);
+    const size_t random_seed = NUM2SIZET(kw_values[3]);
+    const bool allow_replace_deleted = kw_values[4] == Qtrue ? true : false;
 
     hnswlib::HierarchicalNSW<float>* ptr = get_hnsw_hierarchicalnsw(self);
     try {
+      ptr->~HierarchicalNSW();
       new (ptr) hnswlib::HierarchicalNSW<float>(space, max_elements, m, ef_construction, random_seed, allow_replace_deleted);
     } catch (const std::runtime_error& e) {
       rb_raise(rb_eRuntimeError, "%s", e.what());

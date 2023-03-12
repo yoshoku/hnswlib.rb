@@ -53,7 +53,8 @@ module Hnswlib
   class HierarchicalNSW
     attr_accessor space: (::Hnswlib::L2Space | ::Hnswlib::InnerProductSpace)
 
-    def initialize: (space: (::Hnswlib::L2Space | ::Hnswlib::InnerProductSpace) space, max_elements: Integer max_elements, ?m: Integer m, ?ef_construction: Integer ef_construction, ?random_seed: Integer random_seed, ?allow_replace_deleted: (true | false) allow_replace_deleted) -> void
+    def initialize: (space: String space, dim: Integer dim) -> void
+    def init_index: (max_elements: Integer max_elements, ?m: Integer m, ?ef_construction: Integer ef_construction, ?random_seed: Integer random_seed, ?allow_replace_deleted: (true | false) allow_replace_deleted) -> void
     def add_point: (Array[Float] arr, Integer idx, ?replace_deleted: (true | false) replace_deleted) -> bool
     def current_count: () -> Integer
     def get_ids: () -> Array[Integer]

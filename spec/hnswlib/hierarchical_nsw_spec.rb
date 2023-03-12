@@ -6,9 +6,9 @@ RSpec.describe Hnswlib::HierarchicalNSW do
   let(:ef_construction) { 100 }
   let(:em) { 10 }
   let(:space) { 'l2' }
-  let(:index) do
-    described_class.new(space: space, dim: dim, max_elements: max_elements, ef_construction: ef_construction, m: em)
-  end
+  let(:index) { described_class.new(space: space, dim: dim) }
+
+  before { index.init_index(max_elements: max_elements, ef_construction: ef_construction, m: em) }
 
   describe '#add_pint' do
     it 'adds new point' do
@@ -81,7 +81,7 @@ RSpec.describe Hnswlib::HierarchicalNSW do
     end
 
     context 'when index is empty' do
-      let(:empty_index) { described_class.new(space: space, dim: dim, max_elements: max_elements) }
+      let(:empty_index) { described_class.new(space: space, dim: dim) }
 
       it 'returns empty array', :aggregate_failures do
         expect(empty_index.get_ids).to be_a(Array)
@@ -162,9 +162,24 @@ RSpec.describe Hnswlib::HierarchicalNSW do
     end
   end
 
+  describe '#init_index' do
+    before do
+      index.add_point([1, 2, 3], 0)
+      index.add_point([1, 1, 3], 1)
+      index.add_point([2, 2, 4], 2)
+      index.init_index(max_elements: 2)
+    end
+
+    it 'initializes search index', :aggregate_failures do
+      expect(index.max_elements).to eq(2)
+      expect(index.current_count).to eq(0)
+      expect { index.get_point(0) }.to raise_error(RuntimeError, /Label not found/)
+    end
+  end
+
   describe '#save_index and #load_index' do
     let(:filename) { File.expand_path("#{__dir__}/bruteforce.ann") }
-    let(:loaded_index) { described_class.new(space: space, dim: dim, max_elements: max_elements) }
+    let(:loaded_index) { described_class.new(space: space, dim: dim) }
 
     before do
       index.add_point([1, 2, 5], 0)
@@ -220,9 +235,8 @@ RSpec.describe Hnswlib::HierarchicalNSW do
 
   describe 'allow_replace_deleted argument' do
     context 'when allow_replace_deleted is false' do
-      let(:index) { described_class.new(space: space, dim: dim, max_elements: 4, allow_replace_deleted: false) }
-
       before do
+        index.init_index(max_elements: 4, allow_replace_deleted: false)
         index.add_point([1, 0, 2], 0)
         index.add_point([1, 1, 2], 1)
         index.add_point([1, 2, 2], 2)
@@ -241,9 +255,8 @@ RSpec.describe Hnswlib::HierarchicalNSW do
     end
 
     context 'when allow_replace_deleted is true' do
-      let(:index) { described_class.new(space: space, dim: dim, max_elements: 4, allow_replace_deleted: true) }
-
       before do
+        index.init_index(max_elements: 4, allow_replace_deleted: true)
         index.add_point([1, 0, 2], 0)
         index.add_point([1, 1, 2], 1)
         index.add_point([1, 2, 2], 2)

@@ -36,10 +36,9 @@ module Hnswlib
                    random_seed: 100, allow_replace_removed: false)
       @metric = metric
       space = @metric == 'dot' ? 'ip' : 'l2'
-      @index = Hnswlib::HierarchicalNSW.new(
-        space: space, dim: n_features, max_elements: max_item, m: m, ef_construction: ef_construction,
-        random_seed: random_seed, allow_replace_deleted: allow_replace_removed
-      )
+      @index = Hnswlib::HierarchicalNSW.new(space: space, dim: n_features)
+      @index.init_index(max_elements: max_item, m: m, ef_construction: ef_construction,
+                        random_seed: random_seed, allow_replace_deleted: allow_replace_removed)
     end
 
     # Add item to be indexed.
