@@ -26,6 +26,7 @@
 #include <new>
 #include <vector>
 
+VALUE rb_mHnswlib;
 VALUE rb_cHnswlibL2Space;
 VALUE rb_cHnswlibInnerProductSpace;
 VALUE rb_cHnswlibHierarchicalNSW;
@@ -52,8 +53,8 @@ public:
     return ptr;
   };
 
-  static VALUE define_class(VALUE rb_mHnswlib) {
-    rb_cHnswlibL2Space = rb_define_class_under(rb_mHnswlib, "L2Space", rb_cObject);
+  static VALUE define_class(VALUE outer) {
+    rb_cHnswlibL2Space = rb_define_class_under(outer, "L2Space", rb_cObject);
     rb_define_alloc_func(rb_cHnswlibL2Space, hnsw_l2space_alloc);
     rb_define_method(rb_cHnswlibL2Space, "initialize", RUBY_METHOD_FUNC(_hnsw_l2space_init), 1);
     rb_define_method(rb_cHnswlibL2Space, "distance", RUBY_METHOD_FUNC(_hnsw_l2space_distance), 2);
@@ -128,8 +129,8 @@ public:
     return ptr;
   };
 
-  static VALUE define_class(VALUE rb_mHnswlib) {
-    rb_cHnswlibInnerProductSpace = rb_define_class_under(rb_mHnswlib, "InnerProductSpace", rb_cObject);
+  static VALUE define_class(VALUE outer) {
+    rb_cHnswlibInnerProductSpace = rb_define_class_under(outer, "InnerProductSpace", rb_cObject);
     rb_define_alloc_func(rb_cHnswlibInnerProductSpace, hnsw_ipspace_alloc);
     rb_define_method(rb_cHnswlibInnerProductSpace, "initialize", RUBY_METHOD_FUNC(_hnsw_ipspace_init), 1);
     rb_define_method(rb_cHnswlibInnerProductSpace, "distance", RUBY_METHOD_FUNC(_hnsw_ipspace_distance), 2);
@@ -218,8 +219,8 @@ public:
     return ptr;
   };
 
-  static VALUE define_class(VALUE rb_mHnswlib) {
-    rb_cHnswlibHierarchicalNSW = rb_define_class_under(rb_mHnswlib, "HierarchicalNSW", rb_cObject);
+  static VALUE define_class(VALUE outer) {
+    rb_cHnswlibHierarchicalNSW = rb_define_class_under(outer, "HierarchicalNSW", rb_cObject);
     rb_define_alloc_func(rb_cHnswlibHierarchicalNSW, hnsw_hierarchicalnsw_alloc);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "initialize", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_init), -1);
     rb_define_method(rb_cHnswlibHierarchicalNSW, "add_point", RUBY_METHOD_FUNC(_hnsw_hierarchicalnsw_add_point), -1);
@@ -607,8 +608,8 @@ public:
     return ptr;
   };
 
-  static VALUE define_class(VALUE rb_mHnswlib) {
-    rb_cHnswlibBruteforceSearch = rb_define_class_under(rb_mHnswlib, "BruteforceSearch", rb_cObject);
+  static VALUE define_class(VALUE outer) {
+    rb_cHnswlibBruteforceSearch = rb_define_class_under(outer, "BruteforceSearch", rb_cObject);
     rb_define_alloc_func(rb_cHnswlibBruteforceSearch, hnsw_bruteforcesearch_alloc);
     rb_define_method(rb_cHnswlibBruteforceSearch, "initialize", RUBY_METHOD_FUNC(_hnsw_bruteforcesearch_init), -1);
     rb_define_method(rb_cHnswlibBruteforceSearch, "add_point", RUBY_METHOD_FUNC(_hnsw_bruteforcesearch_add_point), 2);
