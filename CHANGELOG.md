@@ -1,3 +1,25 @@
+## [0.8.0] - 2023-03-14
+
+**Breaking change:**
+
+- Change to give a String to the space argument of the `initialize` method
+in [HierarchicalNSW](https://yoshoku.github.io/hnswlib.rb/doc/Hnswlib/HierarchicalNSW.html) and [BruteforceSearch](https://yoshoku.github.io/hnswlib.rb/doc/Hnswlib/BruteforceSearch.html).
+- Add `init_index` method to HierarchicalNSW and BruteforceSearch.
+Along with this, some arguments of `initialize` method moved to `init_index` method.
+  ```ruby
+  require 'hnswlib'
+
+  n_features = 3
+  max_elements = 10
+
+  hnsw = Hnswlib::HierarchicalNSW.new(space: 'l2', dim: n_features)
+  hnsw.init_index(max_elements: max_elements, m: 16, ef_construction: 200, random_seed: 42, allow_replace_deleted: false)
+
+  bf = Hnswlib::BruteforceSearch.new(space: 'l2', dim: n_features)
+  bf.init_index(max_elements: max_elements)
+  ```
+- Deprecate [HnswIndex](https://yoshoku.github.io/hnswlib.rb/doc/Hnswlib/HnswIndex.html) has interface similar to Annoy.
+
 ## [0.7.0] - 2023-03-04
 
 - Update bundled hnswlib version to 0.7.0.
