@@ -62,10 +62,14 @@ module Hnswlib
     def get_point: (Integer idx) -> Array[Float]
     def load_index: (String filename, ?allow_replace_deleted: (true | false) allow_replace_deleted) -> void
     def mark_deleted: (Integer idx) -> void
+    def unmark_deleted: (Integer idx) -> void
     def max_elements: () -> Integer
     def resize_index: (Integer new_max_elements) -> void
     def save_index: (String filename) -> void
-    def search_knn: (Array[Float] arr, Integer k) -> [Array[Integer], Array[Float]]
+    def search_knn: (Array[Float] arr, Integer k, ?filter: Proc filter) -> [Array[Integer], Array[Float]]
     def set_ef: (Integer ef) -> void
+    def get_ef: () -> Integer
+    def ef_construction: () -> Integer
+    def m: () -> Integer
   end
 end
