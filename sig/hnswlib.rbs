@@ -48,7 +48,7 @@ module Hnswlib
     def max_elements: () -> Integer
     def remove_point: (Integer idx) -> void
     def save_index: (String filename) -> void
-    def search_knn: (Array[Float] arr, Integer k) -> [Array[Integer], Array[Float]]
+    def search_knn: (Array[Float] arr, Integer k, ?filter: Proc filter) -> [Array[Integer], Array[Float]]
   end
 
   class HierarchicalNSW
