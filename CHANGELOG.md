@@ -1,3 +1,7 @@
+## [0.8.1] - 2023-03-18
+
+- Update the type declarations of HierarchicalNSW and BruteforceSearch along with recent changes.
+
 ## [0.8.0] - 2023-03-14
 
 **Breaking change:**
