@@ -76,7 +76,7 @@ module Hnswlib
   #   n_features = 32
   #   max_elements = 100
   #
-  #   index = HierarchicalNSW.new(space: space, dim: n_features)
+  #   index = HierarchicalNSW.new(space: 'cosine', dim: n_features)
   #   index.init_index(max_elements: max_elements)
   #
   #   max_elements.times do |i|
