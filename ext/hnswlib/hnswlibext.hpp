@@ -528,10 +528,6 @@ private:
       free(index->linkLists_);
       index->linkLists_ = nullptr;
     }
-    if (index->visited_list_pool_) {
-      delete index->visited_list_pool_;
-      index->visited_list_pool_ = nullptr;
-    }
 
     try {
       index->loadIndex(filename, space);
