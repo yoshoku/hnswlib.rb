@@ -158,7 +158,7 @@ InnerProductSIMD16ExtAVX512(const void *pVect1v, const void *pVect2v, const void
     __m512 sum512 = _mm512_set1_ps(0);
 
     size_t loop = qty16 / 4;
-    
+
     while (loop--) {
         __m512 v1 = _mm512_loadu_ps(pVect1);
         __m512 v2 = _mm512_loadu_ps(pVect2);
@@ -345,6 +345,8 @@ class InnerProductSpace : public SpaceInterface<float> {
     size_t dim_;
 
  public:
+    InnerProductSpace() : data_size_(0), dim_(0) { }
+
     InnerProductSpace(size_t dim) {
         fstdistfunc_ = InnerProductDistance;
 #if defined(USE_AVX) || defined(USE_SSE) || defined(USE_AVX512)

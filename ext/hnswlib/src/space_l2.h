@@ -211,6 +211,8 @@ class L2Space : public SpaceInterface<float> {
     size_t dim_;
 
  public:
+    L2Space() : data_size_(0), dim_(0) { }
+
     L2Space(size_t dim) {
         fstdistfunc_ = L2Sqr;
 #if defined(USE_SSE) || defined(USE_AVX) || defined(USE_AVX512)

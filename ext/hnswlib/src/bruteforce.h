@@ -21,6 +21,7 @@ class BruteforceSearch : public AlgorithmInterface<dist_t> {
 
     std::unordered_map<labeltype, size_t > dict_external_to_internal;
 
+    BruteforceSearch() : data_(nullptr) { }
 
     BruteforceSearch(SpaceInterface <dist_t> *s)
         : data_(nullptr),
