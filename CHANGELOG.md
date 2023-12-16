@@ -1,3 +1,8 @@
+## [[0.9.0](https://github.com/yoshoku/hnswlib.rb/compare/v0.8.1...v0.9.0)] - 2023-12-16
+
+- Update bundled hnswlib version to 0.8.0.
+  - Multi-vector document search and epsilon search, which are added only to the C++ version, are not supported. These features will be supported in future release.
+
 ## [0.8.1] - 2023-03-18
 
 - Update the type declarations of HierarchicalNSW and BruteforceSearch along with recent changes.
