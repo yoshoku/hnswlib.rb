@@ -64,7 +64,7 @@ RSpec.describe Hnswlib do
         subject { index.get_nns_by_vector(query, n_neighbors, filter: filter) }
 
         let(:filter) do
-          proc { |label| label.odd? }
+          proc(&:odd?)
         end
 
         it 'returns filtered nearest neighbors' do

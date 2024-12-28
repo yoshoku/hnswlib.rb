@@ -79,7 +79,7 @@ RSpec.describe Hnswlib::BruteforceSearch do
 
       context 'when given filter function' do
         let(:filter) do
-          proc { |label| label.odd? }
+          proc(&:odd?)
         end
 
         it 'returns filtered serch results' do
