@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require_relative 'hnswlib/version'
-require_relative 'hnswlib/hnswlibext'
+# On distributions like Rocky Linux, native extensions are installed in a separate
+# directory from Ruby code, so use require to load them.
+require 'hnswlib/hnswlibext'
 
 module Hnswlib
   # HnswIndex is a class that provides functions for k-nearest eighbors search.
