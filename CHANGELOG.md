@@ -1,3 +1,7 @@
+## [[0.9.1](https://github.com/yoshoku/hnswlib.rb/compare/v0.8.1...v0.9.0)] - 2025-11-23
+
+- Fix to use require for compatibility with distributions installing extensions separately.
+
 ## [[0.9.0](https://github.com/yoshoku/hnswlib.rb/compare/v0.8.1...v0.9.0)] - 2023-12-16
 
 - Update bundled hnswlib version to 0.8.0.
