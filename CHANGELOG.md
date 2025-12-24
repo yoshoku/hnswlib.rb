@@ -1,4 +1,4 @@
-## [[0.9.1](https://github.com/yoshoku/hnswlib.rb/compare/v0.8.1...v0.9.0)] - 2025-11-23
+## [[0.9.1](https://github.com/yoshoku/hnswlib.rb/compare/v0.9.0...v0.9.1)] - 2025-11-23
 
 - Fix to use require for compatibility with distributions installing extensions separately.
 
