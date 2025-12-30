@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'hnswlib/version'
-# On distributions like Rocky Linux, native extensions are installed in a separate
+# On RHEL-based Linux distributions, native extensions are installed in a separate
 # directory from Ruby code, so use require to load them.
 require 'hnswlib/hnswlibext'
 
