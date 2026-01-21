@@ -218,6 +218,15 @@ RSpec.describe Hnswlib::HierarchicalNSW do
     end
   end
 
+  describe '#load_index' do
+    context 'with an invalid file' do
+      it 'raises a runtime error' do
+        expect { index.load_index(__FILE__) }
+          .to(raise_error(RuntimeError))
+      end
+    end
+  end
+
   describe '#max_elements' do
     it 'returns the maximum number of elements' do
       expect(index.max_elements).to eq(max_elements)
