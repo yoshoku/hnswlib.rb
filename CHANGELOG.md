@@ -1,3 +1,7 @@
+## [[0.9.2](https://github.com/yoshoku/hnswlib.rb/compare/v0.9.1...v0.9.2)] - 2026-02-16
+
+- Remove libstdc++ loading check from native extensions build step.
+
 ## [[0.9.1](https://github.com/yoshoku/hnswlib.rb/compare/v0.9.0...v0.9.1)] - 2025-11-23
 
 - Fix to use require for compatibility with distributions installing extensions separately.
