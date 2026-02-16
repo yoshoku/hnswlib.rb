@@ -695,7 +695,6 @@ private:
       return Qnil;
     }
 
-    hnswlib::SpaceInterface<float>* space;
     if (strcmp(StringValueCStr(kw_values[0]), "l2") == 0) {
       rb_iv_set(self, "@space", rb_funcall(rb_const_get(rb_mHnswlib, rb_intern("L2Space")), rb_intern("new"), 1, kw_values[1]));
     } else {
