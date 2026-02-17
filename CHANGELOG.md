@@ -1,3 +1,7 @@
+## [[0.9.3](https://github.com/yoshoku/hnswlib.rb/compare/v0.9.2...v0.9.3)] - 2026-02-17
+
+- Fix to access map entry before erasing to prevent use-after-erase segmentation fault.
+
 ## [[0.9.2](https://github.com/yoshoku/hnswlib.rb/compare/v0.9.1...v0.9.2)] - 2026-02-16
 
 - Remove libstdc++ loading check from native extensions build step.
