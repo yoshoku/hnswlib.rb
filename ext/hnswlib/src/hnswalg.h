@@ -150,14 +150,20 @@ class HierarchicalNSW : public AlgorithmInterface<dist_t> {
     }
 
     void clear() {
-        free(data_level0_memory_);
-        data_level0_memory_ = nullptr;
-        for (tableint i = 0; i < cur_element_count; i++) {
-            if (element_levels_[i] > 0)
-                free(linkLists_[i]);
+        if (data_level0_memory_ != nullptr) {
+            free(data_level0_memory_);
+            data_level0_memory_ = nullptr;
         }
-        free(linkLists_);
-        linkLists_ = nullptr;
+
+        if (linkLists_ != nullptr) {
+            for (tableint i = 0; i < cur_element_count; i++) {
+                if (element_levels_[i] > 0)
+                    free(linkLists_[i]);
+            }
+            free(linkLists_);
+            linkLists_ = nullptr;
+        }
+
         cur_element_count = 0;
         visited_list_pool_.reset(nullptr);
     }
