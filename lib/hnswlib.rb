@@ -1,9 +1,19 @@
 # frozen_string_literal: true
 
 require_relative 'hnswlib/version'
-# On RHEL-based Linux distributions, native extensions are installed in a separate
-# directory from Ruby code, so use require to load them.
-require 'hnswlib/hnswlibext'
+begin
+  require 'hnswlib/hnswlibext'
+rescue LoadError
+  spec = Gem.loaded_specs['hnswlib']
+  if spec
+    ext_dir = File.join(File.dirname(spec.full_gem_path), 'extensions', spec.platform.to_s, "#{RbConfig::CONFIG['ruby_version']}", "hnswlib-#{spec.version}")
+    %w[lib/hnswlib/hnswlibext.so hnswlib/hnswlibext.so].each do |p|
+      require File.join(ext_dir, p) if File.exist?(File.join(ext_dir, p))
+    end
+  else
+    raise
+  end
+end
 
 module Hnswlib
   # HnswIndex is a class that provides functions for k-nearest eighbors search.
